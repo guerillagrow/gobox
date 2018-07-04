@@ -1,0 +1,56 @@
+{
+    "devices": {
+        "relay_l1": {
+            "gpio": "11",
+            "settings": {
+                "condition": "",
+                "force": -1,
+                "off": "20:00",
+                "on": "05:00"
+            },
+            "status": true
+        },
+        "relay_l2": {
+            "gpio": "17",
+            "settings": {
+                "force": -1,
+                "off": "20:00",
+                "on": "05:00"
+            },
+            "status": true
+        },
+        "t1": {
+            "gpio": "5",
+            "read_every": 1,
+            "status": true
+        },
+        "t2": {
+            "gpio": "22",
+            "read_every": 1,
+            "status": true
+        }
+    },
+    "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
+    "stats": {
+        "1m": {
+            "min_group_size": 0,
+            "status": true
+		},
+        "10m": {
+            "min_group_size": 0,
+            "status": true
+        },
+        "30m": {
+            "min_group_size": 0,
+            "status": false
+        },
+        "1h": {
+            "min_group_size": 0,
+            "status": true
+        },
+        "24h": {
+            "min_group_size": 0,
+            "status": false
+		}
+    }
+}
