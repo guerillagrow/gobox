@@ -8,8 +8,9 @@ GoBox - Growbox automation
 4. Documentation  
 	4.1. Configuration  
 	4.2. Building from source  
-	4.2.1	Linux  
-	4.2.2	Windows
+		4.2.1. Linux  
+		4.2.2. Windows  
+	4.3. Wiring
 5. Side notes
 6. TODOs
 
@@ -93,7 +94,7 @@ http://[raspberrypi]:8080
 		
 ## 4.) Documentation
 
-### Configuration
+### 4.1.) Configuration
 
 <b>Note: at the moment the multi user support and user profile features are missing!
 The default login is:</b>
@@ -133,7 +134,7 @@ devices.relay_l1.settings.off          => Time when relay goes off, like: 20:30
    ...
 ```
 
-The `sensd` Daemon executable reads the sensor data according to your raspberrypi.json
+The `sensd` daemon executable reads the sensor data according to your raspberrypi.json
 config file. You can use any kind of script or process to read the sensor data maybe a
 custom python script or similar. You just have to enter it in the config file as "sensd_bin".
 You custom sensd script must encode the temperature and humidity data as JSON object including following tags:
@@ -177,11 +178,15 @@ Run following command to build gobox:
 ```
 $ build.bat
 ```
+### 4.3.)  Wiring
 
+Wiring according to default config:
+
+![GoBOx screenshot](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_screen.png)
 
 ## 5.) Side notes
 
-Keep in mind that the lower as you set the "read_every" (number of seconds) value of 
+Keep in mind that the lower you set the "read_every" (number of seconds) value of 
 your sensors the more storage will be consumed by the logged sensor data.
 This might also affect the query times for loading graphs etc.
 

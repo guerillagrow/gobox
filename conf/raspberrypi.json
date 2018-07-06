@@ -30,7 +30,7 @@
             "status": true
         }
     },
-    "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
+    "sensd_bin": "/usr/local/bin/sensd",
     "stats": {
         "1m": {
             "min_group_size": 0,
