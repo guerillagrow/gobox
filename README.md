@@ -182,7 +182,7 @@ $ build.bat
 
 Wiring according to default config:
 
-![GoBOx screenshot](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_screen.png)
+![GoBOx screenshot](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_wiring.jpg)
 
 ## 5.) Side notes
 
