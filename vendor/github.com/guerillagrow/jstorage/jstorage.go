@@ -10,11 +10,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"github.com/guerillagrow/tconv"
 	"log"
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/guerillagrow/tconv"
 )
 
 var ErrEmptySelector error = errors.New("Empty selector!")
@@ -198,7 +199,16 @@ func (self *Storage) get(k string) (interface{}, error) {
 
 }
 
-func (self *Storage) GetInt(k string) (int64, error) {
+func (self *Storage) GetInt(k string) (int, error) {
+	r, err := self.Get(k)
+	if err != nil {
+		return int(0), err
+	}
+	v, verr := tconv.T2Int(r)
+	return int(v), verr
+}
+
+func (self *Storage) GetInt64(k string) (int64, error) {
 	r, err := self.Get(k)
 	if err != nil {
 		return int64(0), err
@@ -207,13 +217,40 @@ func (self *Storage) GetInt(k string) (int64, error) {
 	return v, verr
 }
 
+func (self *Storage) GetInt32(k string) (int32, error) {
+	r, err := self.Get(k)
+	if err != nil {
+		return int32(0), err
+	}
+	v, verr := tconv.T2Int(r)
+	return int32(v), verr
+}
+
 func (self *Storage) GetFloat(k string) (float64, error) {
 	r, err := self.Get(k)
 	if err != nil {
 		return float64(0), err
 	}
 	v, verr := tconv.T2Float(r)
+	return float64(v), verr
+}
+
+func (self *Storage) GetFloat64(k string) (float64, error) {
+	r, err := self.Get(k)
+	if err != nil {
+		return float64(0), err
+	}
+	v, verr := tconv.T2Float(r)
 	return v, verr
+}
+
+func (self *Storage) GetFloat32(k string) (float32, error) {
+	r, err := self.Get(k)
+	if err != nil {
+		return float32(0), err
+	}
+	v, verr := tconv.T2Float(r)
+	return float32(v), verr
 }
 
 func (self *Storage) GetString(k string) (string, error) {

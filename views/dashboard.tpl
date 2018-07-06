@@ -259,7 +259,7 @@
          <div class="container">
          
             <div class="copy text-center">
-               Powered by <a href='#'>GoBox</a> - the open source GrowBox automation toolkit!
+               Powered by <a target="_blank" href='https://github.com/guerillagrow/gobox'>GoBox</a> - the open source GrowBox automation toolkit!
             </div>
             
          </div>

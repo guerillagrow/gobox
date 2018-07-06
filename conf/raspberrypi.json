@@ -32,6 +32,7 @@
     },
     "sensd_bin": "/usr/local/bin/sensd",
     "stats": {
+		"delete_older_than": 72,
         "1m": {
             "min_group_size": 0,
             "status": true

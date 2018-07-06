@@ -3,11 +3,11 @@ package models
 import (
 	//"fmt"
 	//"errors"
-	"log"
+	//"log"
 	"sort"
 	"time"
 
-	"github.com/guerillagrow/tconv"
+	//"github.com/guerillagrow/tconv"
 
 	"github.com/asdine/storm"
 	"github.com/asdine/storm/q"
@@ -119,13 +119,13 @@ func QueryTemperatureData(
 	statsBucket bool,
 	statsTimeGroup time.Duration) (TemperatureSlice, error) {
 
-	log.Println("QueryTemperatureData() ->", tconv.T2Str(statsTimeGroup))
+	//log.Println("QueryTemperatureData() ->", tconv.T2Str(statsTimeGroup))
 	res := TemperatureSlice{}
 
 	var node storm.Node
 
 	if statsBucket {
-		node = DB.From("stats", "sensd", "temperature", sensor, tconv.T2Str(statsTimeGroup))
+		node = DB.From("stats", "sensd", "temperature", sensor, statsTimeGroup.String())
 	} else {
 		node = DB.From("sensd", "temperature", sensor)
 	}
@@ -247,14 +247,14 @@ func QueryHumidityData(
 	statsBucket bool,
 	statsTimeGroup time.Duration) (HumiditySlice, error) {
 
-	log.Println("QueryHumidityData() ->", tconv.T2Str(statsTimeGroup))
+	//log.Println("QueryHumidityData() ->", tconv.T2Str(statsTimeGroup))
 
 	res := HumiditySlice{}
 
 	var node storm.Node
 
 	if statsBucket {
-		node = DB.From("stats", "sensd", "humidity", sensor, tconv.T2Str(statsTimeGroup))
+		node = DB.From("stats", "sensd", "humidity", sensor, statsTimeGroup.String())
 	} else {
 		node = DB.From("sensd", "humidity", sensor)
 	}

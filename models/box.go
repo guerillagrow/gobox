@@ -262,33 +262,37 @@ func (box *Box) RobotWork() {
 	// !DEBUG // !DEV
 	// Stats routines
 	gobot.Every((60+20)*time.Second, func() { // 1m
-		GenerateHumidityMedian("T1", 60*time.Second, 1000, 59)
-		GenerateHumidityMedian("T2", 60*time.Second, 1000, 59)
-
-		GenerateTemperatureMedian("T1", 60*time.Second, 1000, 59)
-		GenerateTemperatureMedian("T2", 60*time.Second, 1000, 59)
+		GenerateHumidityMedian("T1", 1*time.Minute, 1000, 0)
+		GenerateHumidityMedian("T2", 1*time.Minute, 1000, 0)
+		GenerateTemperatureMedian("T1", 1*time.Minute, 1000, 0)
+		GenerateTemperatureMedian("T2", 1*time.Minute, 1000, 0)
 	})
 	gobot.Every((10+2)*time.Minute, func() { // 10m
-		GenerateHumidityMedian("T1", 10*time.Minute, 1000, 30*10)
-		GenerateHumidityMedian("T2", 10*time.Minute, 1000, 30*10)
-
+		GenerateHumidityMedian("T1", 10*time.Minute, 1000, 0)
+		GenerateHumidityMedian("T2", 10*time.Minute, 1000, 0)
 		GenerateTemperatureMedian("T1", 10*time.Minute, 1000, 0)
 		GenerateTemperatureMedian("T2", 10*time.Minute, 1000, 0)
 	})
 	gobot.Every(62*time.Minute, func() { //1h
-		GenerateHumidityMedian("T1", 1*time.Hour, 1000, 40*60)
-		GenerateHumidityMedian("T2", 1*time.Hour, 1000, 40*60)
-
-		GenerateTemperatureMedian("T1", 1*time.Hour, 1000, 40*60)
-		GenerateTemperatureMedian("T2", 1*time.Hour, 1000, 40*60)
+		GenerateHumidityMedian("T1", 1*time.Hour, 3000, 0)
+		GenerateHumidityMedian("T2", 1*time.Hour, 3000, 0)
+		GenerateTemperatureMedian("T1", 1*time.Hour, 3000, 0)
+		GenerateTemperatureMedian("T2", 1*time.Hour, 3000, 0)
 	})
 
 	// delete old sensor metrics
 	gobot.Every(1*time.Hour, func() { //1h
+		qlimit := 2000
+		dolderthan, _ := BoxConfig.GetInt64("stats/delete_older_than") // value in hours
+		if dolderthan < 1 {
+			dolderthan = 24 * 3 // default 3 days
+		}
+		qtimel := time.Now().Add(-(time.Duration(dolderthan) * time.Hour))
+
 		t := Temperature{Sensor: "T1"}
 		query := t.GetNode().Select(q.And(
-			q.Lt("Created", time.Now().Add(-((24 * 7) * time.Hour))),
-		))
+			q.Lt("Created", qtimel),
+		)).Limit(qlimit)
 		query.Each(&Temperature{}, func(v interface{}) error {
 			e := v.(Temperature)
 			e.Delete()
@@ -297,8 +301,8 @@ func (box *Box) RobotWork() {
 
 		t = Temperature{Sensor: "T2"}
 		query = t.GetNode().Select(q.And(
-			q.Lt("Created", time.Now().Add(-((24 * 7) * time.Hour))),
-		))
+			q.Lt("Created", qtimel),
+		)).Limit(qlimit)
 		query.Each(&Temperature{}, func(v interface{}) error {
 			e := v.(Temperature)
 			e.Delete()
@@ -307,18 +311,18 @@ func (box *Box) RobotWork() {
 
 		h := Humidity{Sensor: "T1"}
 		query = h.GetNode().Select(q.And(
-			q.Lt("Created", time.Now().Add(-((24 * 7) * time.Hour))),
-		))
+			q.Lt("Created", qtimel),
+		)).Limit(qlimit)
 		query.Each(&Humidity{}, func(v interface{}) error {
 			e := v.(Humidity)
 			e.Delete()
 			return nil
 		})
 
-		h = Humidity{Sensor: "T²"}
+		h = Humidity{Sensor: "T2"}
 		query = h.GetNode().Select(q.And(
-			q.Lt("Created", time.Now().Add(-((24 * 7) * time.Hour))),
-		))
+			q.Lt("Created", qtimel),
+		)).Limit(qlimit)
 		query.Each(&Humidity{}, func(v interface{}) error {
 			e := v.(Humidity)
 			e.Delete()
