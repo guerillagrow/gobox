@@ -1,7 +1,6 @@
 #!/bin/bash
 
 RPI_IP=$1
-##echo "PI IP=${RPI_IP}"
 
 echo "Upload GoBox service (init.d)"
 scp -r ./initscript/gobox.sh root@$RPI_IP:/etc/init.d/gobox
