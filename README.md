@@ -100,7 +100,7 @@ http://[raspberrypi]:8080
 
 This is really for those who have no clue how to access the Pi from windows and don't know  the "scp" and "ssh" command neither putty.
 
-1. Download Putty (To access the Pi whenever you want via SSH)
+1. Download Putty (To access the Pi whenever you want via SSH, see: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
 2. Download and install OpenSSH for windows (for guidance: https://winscp.net/eng/docs/guide_windows_openssh_server)
 3. Unpack the downloaded gobox_v*.zip folder.
 4. Open up your command promt (cmd.exe) and navigate into the folder containing the extracted files. Use following command to navigate (ignore the $-sign & replace path):
