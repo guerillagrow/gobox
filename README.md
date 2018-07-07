@@ -5,6 +5,7 @@ GoBox - Growbox automation
 2. System requirements  
 	2.1. Required hardware
 3. Installation
+	3.1. Installation for windows users
 4. Documentation  
 	4.1. Configuration  
 	4.2. Building from source  
@@ -95,6 +96,29 @@ sensor data. GoBox has zero dependencies neither python, apache or mysql are req
 Thats it. Happy growing! :-) You can now access the web interface on:
 http://[raspberrypi]:8080
 		
+### 3.1.) Installation for windows users
+
+This is really for those who have no clue how to access the Pi from windows and don't know  the "scp" and "ssh" command neither putty.
+
+1. Download Putty (To access the Pi whenever you want via SSH)
+2. Download and install OpenSSH for windows (for guidance: https://winscp.net/eng/docs/guide_windows_openssh_server)
+3. Unpack the downloaded gobox_v*.zip folder.
+4. Open up your command promt (cmd.exe) and navigate into the folder containing the extracted files. Use following command to navigate (ignore the $-sign & replace path):
+
+	`$ cd C:\path\to\extracted\gobox\release`
+5. Exectute following commands replace $RPI_IP with the IP-Address of your Raspberry Pi:
+
+	```
+	scp -r ./views/ root@$RPI_IP:/usr/local/gobox/
+	scp -r ./static/ root@$RPI_IP:/usr/local/gobox/ 
+	scp ./cmd/gobox/gobox_arm root@$RPI_IP:/usr/local/bin/gobox
+	scp ./cmd/sensd/sensd_arm root@$RPI_IP:/usr/local/bin/sensd
+	ssh root@$RPI_IP
+	chmod +x /etc/init.d/gobox
+	sudo update-rc.d gobox defaults
+	sudo update-rc.d gobox enable
+	sudo service gobox start
+	```
 		
 ## 4.) Documentation
 
