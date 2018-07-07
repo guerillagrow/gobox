@@ -4,7 +4,7 @@ GoBox - Growbox automation
 1. Features
 2. System requirements  
 	2.1. Required hardware
-3. Installation
+3. Installation  
 	3.1. Installation for windows users
 4. Documentation  
 	4.1. Configuration  
