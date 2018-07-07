@@ -15,10 +15,10 @@ GoBox - Growbox automation
 6. TODOs
 
 
-GoBox is a growbox automation app for a Raspberry Pi. It allows you to connect two
+GoBox is a growbox automation app for Raspberry Pi. It allows you to connect two
 DHT11 (Temperature & Humidity) sensors and 2 relays (one for light and one for air).
 You can adjust the relay on/off times via web interface and also see the latest
-sensor data.
+sensor data. GoBox has zero dependencies neither python, apache or mysql are required. Just push the latest GoBox release on your Pi and you're ready to go.
 
 
 ### 1.) Features
@@ -67,7 +67,11 @@ sensor data.
 	4.1.	 Set the system time of your raspberrypi properly so the timestamps are correct
 5. Change the $RPI_IP variable inside the upload_gobox.sh file to theIP of your raspberry pi then run: 		
 
-	`$ ./upload_gobox.sh`
+	`$ ./upload_gobox.sh [raspberry pi IP]`
+	
+	5.1 Make the init script executable:
+	
+	`$ chmod +x /etc/init.d/gobox` 
 	
 6.	Start gobox with following command:
 
@@ -197,13 +201,20 @@ So in the next release I think we will get much better performance for the web f
 There also might come a userfriendly command line setup to make the installation process easier!
 
 
+Big thanks to the developers of gobot.io! They made it so muche easier for me. Check it out at: https://gobot.io/
+
 ## 6.) TODOs
 
 * Add tests
+* Add ability to connect also 2 DHT22 sensors (d1; d2)
+* Add ability for measure PH of water if we grow in hydro culture
+	See: http://www.sparkyswidgets.com/product/miniph/
+		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage
+* Maybe add webcam monitoring functionality
 * Add csrf/xsrf protection
 * Clean up code base. Make it more idiomatic.
 * Maybe replace Beego with gin or echo which are more idiomatic go.
-* Finish stats generation (use new config vars) // !HOT
+* Extend stat results with the last 3 stored sensor measurements in web service (ServiceSensors{})
 * Extend documentation about raspberrypi.json config file
 * Add intelligent relay switch by condition expression evaluation of the config file
 	Like:	
@@ -214,10 +225,10 @@ There also might come a userfriendly command line setup to make the installation
 	($temp_t1 >= 30 && $temp_t2 >= 30 && $relay_l1_status == true)
 	
 	// Available variables inside an expression:
-	// $temp_t1         = Temperature value of sensor T1
-	// $temp_t2         = Temperature value of sensor T2
-	// $humi_t1         = Humidity value of sensor T1
-	// $humi_t2         = Humidity value of sensor T2
+	// $tmp_t1         = Temperature value of sensor T1
+	// $tmp_t2         = Temperature value of sensor T2
+	// $hum_t1         = Humidity value of sensor T1
+	// $hum_t2         = Humidity value of sensor T2
 	// $tcurrent        = Current time
 	// $ton             = Relay time on setting
 	// $toff            = Relay time off setting
