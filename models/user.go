@@ -2,7 +2,7 @@ package models
 
 import (
 	//"github.com/asdine/storm/q"
-	"log"
+	//"log"
 
 	"gopkg.in/hlandau/passlib.v1"
 
@@ -95,14 +95,14 @@ func UserAuth(email, password string) bool {
 	err := DB.One("Email", email, &u)
 	if err != nil {
 		// User not found
-		log.Println("User:", email, " was not found!")
+		//log.Println("User:", email, " was not found!")
 		return false
 	}
 	newHash, err := passlib.Verify(password, u.PwHash)
 	if err != nil {
 		// incorrect password, malformed hash, etc.
 		// either way, reject
-		log.Println("Incorrect password!")
+		//log.Println("Incorrect password!")
 		return false
 	}
 
@@ -115,6 +115,6 @@ func UserAuth(email, password string) bool {
 		u.PwHash = newHash
 		DB.Save(&u)
 	}
-	log.Println("User was successfully logged in!")
+	//log.Println("User was successfully logged in!")
 	return true
 }

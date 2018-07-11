@@ -10,7 +10,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-// !TODO
+// !TODO // !DEBUG
 
 var CSRF *CSRFManager
 

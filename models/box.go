@@ -3,28 +3,24 @@ package models
 import (
 	"bufio"
 	"encoding/json"
-	//"fmt"
 	"io"
 	"log"
 
-	"github.com/guerillagrow/jstorage"
-	//"os"
 	"os/exec"
 	"sync"
 	"time"
 
+	"github.com/guerillagrow/jstorage"
+
 	arrow "github.com/bmuller/arrow/lib"
-	//device "github.com/d2r2/go-hd44780"
 	//"github.com/d2r2/go-i2c"
 
 	"github.com/asdine/storm"
 	sjson "github.com/asdine/storm/codec/json"
-	//"github.com/asdine/storm/codec/msgpack"
 	"github.com/asdine/storm/q"
 	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/drivers/gpio"
 	//"gobot.io/x/gobot/drivers/i2c"
-	//"github.com/robfig/cron"
 	"github.com/guerillagrow/gobox/models/common"
 
 	"gobot.io/x/gobot/platforms/raspi"
@@ -294,7 +290,10 @@ func (box *Box) RobotWork() {
 			q.Lt("Created", qtimel),
 		)).Limit(qlimit)
 		query.Each(&Temperature{}, func(v interface{}) error {
-			e := v.(Temperature)
+			e, nok := v.(*Temperature)
+			if !nok {
+				return nil
+			}
 			e.Delete()
 			return nil
 		})
@@ -304,7 +303,10 @@ func (box *Box) RobotWork() {
 			q.Lt("Created", qtimel),
 		)).Limit(qlimit)
 		query.Each(&Temperature{}, func(v interface{}) error {
-			e := v.(Temperature)
+			e, nok := v.(*Temperature)
+			if !nok {
+				return nil
+			}
 			e.Delete()
 			return nil
 		})
@@ -314,7 +316,10 @@ func (box *Box) RobotWork() {
 			q.Lt("Created", qtimel),
 		)).Limit(qlimit)
 		query.Each(&Humidity{}, func(v interface{}) error {
-			e := v.(Humidity)
+			e, nok := v.(*Humidity)
+			if !nok {
+				return nil
+			}
 			e.Delete()
 			return nil
 		})
@@ -324,7 +329,10 @@ func (box *Box) RobotWork() {
 			q.Lt("Created", qtimel),
 		)).Limit(qlimit)
 		query.Each(&Humidity{}, func(v interface{}) error {
-			e := v.(Humidity)
+			e, nok := v.(*Humidity)
+			if !nok {
+				return nil
+			}
 			e.Delete()
 			return nil
 		})

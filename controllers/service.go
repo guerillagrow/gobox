@@ -80,16 +80,14 @@ func (c *ServiceRelay) Prepare() {
 
 func (c *ServiceRelay) Post() {
 
-	csrfToken := c.GetString("__csrf__")
-
+	/*csrfToken := c.GetString("__csrf__")
 	csrfErr := CSRF.ValidateToken("svc/relay_l1", csrfToken, c.Ctx)
 
 	if csrfErr != nil {
 		c.Abort("500")
-	}
+	}*/
 
 	reqs := FormRelayL1{}
-
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
 
 	if err != nil {
@@ -259,7 +257,6 @@ func (c *ServiceSensors) GetTemp() {
 			Data: resGraph,
 		}
 	} else {
-		//log.Println("ServiceSensors::GetTemp():", res)
 		c.Data["json"] = JSONResp{
 			Meta: map[string]interface{}{
 				"from":  date2,
@@ -297,7 +294,6 @@ func (c *ServiceSensors) GetHumidity() {
 	if !contains(buckets, sensor) {
 		c.Abort("500")
 	}
-	//node := models.DB.From("sensd", "temperature", sensor)
 
 	statsTime := time.Duration(0)
 
@@ -347,7 +343,6 @@ func (c *ServiceSensors) GetHumidity() {
 			Data: resGraph,
 		}
 	} else {
-		//log.Println("ServiceSensors::GetTemp():", res)
 		c.Data["json"] = JSONResp{
 			Meta: map[string]interface{}{
 				"from":  date2,
@@ -389,7 +384,6 @@ func (c *ServiceUser) CreateUser() {
 	}
 
 	reqs := models.User{}
-
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
 
 	if err != nil {

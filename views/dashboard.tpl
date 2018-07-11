@@ -205,10 +205,11 @@
   				</div>
 			</div>
 		</div>
-		
+		{{if  or (.sensor_t1) (.sensor_t2)}}
 		  <div class="col-md-12">
 
   			<div class="row">
+				{{if .sensor_t1}}
   				<div class="col-md-6">
   					<div class="content-box-large" id="sensor-t1-chart">
 		  				<div class="panel-heading">
@@ -229,7 +230,9 @@
 		  				</div>
 		  			</div>
   				</div>
-  				<div class="col-md-6">
+  				{{end}}
+				{{if .sensor_t2}}
+				<div class="col-md-6">
   					<div class="content-box-large"  id="sensor-t2-chart">
 		  				<div class="panel-heading">
 							<div class="panel-title">Sensor T2</div>
@@ -248,10 +251,12 @@
 		  				</div>
 		  			</div>
   				</div>
-  			</div>
-
+  				{{end}}
+			</div>
 
 		  </div>
+		{{end}}
+		
 		</div>
     </div>
 
@@ -460,12 +465,16 @@
 		}
 		
 		function __init__(){
+			{{if .sensor_t1}}
 			getStatsDataT1("hour", function(d){
 				doPlot("#sensor-t1-chart","right", "hour", d["incr"], d["temp"], d["hum"]);
 			});
+			{{end}}
+			{{if .sensor_t2}}
 			getStatsDataT2("hour", function(d){
 				doPlot("#sensor-t2-chart","right","hour", d["incr"], d["temp"], d["hum"]);
 			});
+			{{end}}
 			libUX.form.ajaxFormLoad($("#svc-relay-form"));
 		}
 		

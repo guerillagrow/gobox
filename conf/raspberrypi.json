@@ -28,9 +28,19 @@
             "gpio": "22",
             "read_every": 1,
             "status": true
+        },
+        "d1": {
+            "gpio": "8",
+            "read_every": 1,
+            "status": true
+        },
+        "d2": {
+            "gpio": "27",
+            "read_every": 1,
+            "status": true
         }
     },
-    "sensd_bin": "/usr/local/bin/sensd",
+    "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
     "stats": {
 		"delete_older_than": 72,
         "1m": {

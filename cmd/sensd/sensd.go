@@ -17,6 +17,8 @@ import (
 	dht "github.com/d2r2/go-dht"
 )
 
+// !TODO: Add d1+d2 DHT22 sensors
+
 var Config *jstorage.Storage = jstorage.NewStorage()
 var mainQueue chan common.Response
 

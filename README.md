@@ -1,11 +1,19 @@
 GoBox - Growbox automation
 ---------------------------
 
+
+GoBox is a growbox automation app for Raspberry Pi. It allows you to connect two
+DHT11 (Temperature & Humidity) sensors and 2 relays (one for light and one for air).
+You can adjust the relay on/off times via web interface and also see the latest
+sensor data. GoBox has zero dependencies neither python, apache or mysql are required. Just push the latest GoBox release on your Pi and you're ready to go.
+
+
 1. Features
 2. System requirements  
 	2.1. Required hardware
 3. Installation  
-	3.1. Installation for windows users
+	3.1. Installation for Linux users
+	3.2. Installation for Windows users
 4. Documentation  
 	4.1. Configuration  
 	4.2. Building from source  
@@ -14,12 +22,6 @@ GoBox - Growbox automation
 	4.3. Wiring
 5. Side notes
 6. TODOs
-
-
-GoBox is a growbox automation app for Raspberry Pi. It allows you to connect two
-DHT11 (Temperature & Humidity) sensors and 2 relays (one for light and one for air).
-You can adjust the relay on/off times via web interface and also see the latest
-sensor data. GoBox has zero dependencies neither python, apache or mysql are required. Just push the latest GoBox release on your Pi and you're ready to go.
 
 
 ### 1.) Features
@@ -58,6 +60,8 @@ sensor data. GoBox has zero dependencies neither python, apache or mysql are req
 
 ## 3.) Installation
 
+### 3.1.) Installation for Linux users
+
 1. Extract the gobox_v*.zip / tar file
 2. Navigate into the folder containing the extracted files
 3. Activate the remote root shell access and create following folders on your raspberry pi:
@@ -73,6 +77,10 @@ sensor data. GoBox has zero dependencies neither python, apache or mysql are req
 	5.1 Make the init script executable:
 	
 	`$ chmod +x /etc/init.d/gobox` 
+	
+	5.2. Set the system time of your Pi correctly:
+	
+	`$ date --set="Mo 9. Jul 17:40:26 CEST 2018`
 	
 6.	Start gobox with following command:
 
@@ -96,7 +104,7 @@ sensor data. GoBox has zero dependencies neither python, apache or mysql are req
 Thats it. Happy growing! :-) You can now access the web interface on:
 http://[raspberrypi]:8080
 		
-### 3.1.) Installation for windows users
+### 3.2.) Installation for Windows users
 
 This is really for those who have no clue how to access the Pi from windows and don't know  the "scp" and "ssh" command neither putty.
 
@@ -106,6 +114,11 @@ This is really for those who have no clue how to access the Pi from windows and 
 4. Open up your command promt (cmd.exe) and navigate into the folder containing the extracted files. Use following command to navigate (ignore the $-sign & replace path):
 
 	`$ cd C:\path\to\extracted\gobox\release`
+	
+	4.1. Set the system time of your Pi correctly login via ssh and execute following command:
+	
+	`$ date --set="Mo 9. Jul 17:40:26 CEST 2018`
+	
 5. Exectute following commands replace $RPI_IP with the IP-Address of your Raspberry Pi:
 
 	```
