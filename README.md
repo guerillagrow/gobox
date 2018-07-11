@@ -7,6 +7,9 @@ DHT11 (Temperature & Humidity) sensors and 2 relays (one for light and one for a
 You can adjust the relay on/off times via web interface and also see the latest
 sensor data. GoBox has zero dependencies neither python, apache or mysql are required. Just push the latest GoBox release on your Pi and you're ready to go.
 
+NOTE: I'm using GoBox in production but it's still considered beta till we reached version 1.0. 
+
+## Contents
 
 1. Features
 2. System requirements  
