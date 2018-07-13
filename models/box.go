@@ -3,8 +3,10 @@ package models
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
+	"strings"
 
 	"os/exec"
 	"sync"
@@ -23,6 +25,7 @@ import (
 	//"gobot.io/x/gobot/drivers/i2c"
 	"github.com/guerillagrow/gobox/models/common"
 
+	"github.com/Knetic/govaluate"
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
@@ -56,12 +59,12 @@ func Init() {
 	devices := []gobot.Device{}
 	GoBox = NewBox()
 	GoBox.RPIAdaptor = raspi.NewAdaptor()
-	//GoBox.LightRelay = gpio.NewLedDriver(GoBox.RPIAdaptor, "4")
+	//GoBox.RelayL1 = gpio.NewLedDriver(GoBox.RPIAdaptor, "4")
 	rl1Status, _ := BoxConfig.GetBool("devices/relay_l1/status")
 	rl1GPIO, _ := BoxConfig.GetString("devices/relay_l1/gpio")
 	if rl1Status == true {
-		GoBox.LightRelay = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
-		devices = append(devices, GoBox.LightRelay)
+		GoBox.RelayL1 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
+		devices = append(devices, GoBox.RelayL1)
 	}
 	//GoBox.SensorT1 = i2c.NewBMP180Driver(GoBox.RPIAdaptor)
 
@@ -116,30 +119,41 @@ type Box struct {
 	RPIAdaptor    *raspi.Adaptor
 	//LCDI2C        *i2c.I2C // !OBSOLET
 	//LCDDevice     *device.Lcd // !OBSOLET
-	LightRelay *gpio.GroveRelayDriver
+	RelayL1 *gpio.GroveRelayDriver
+	RelayL2 *gpio.GroveRelayDriver
 	//FanRelay    *gpio.GroveRelayDriver
-	SensDCmd          *exec.Cmd
-	SensDStdout       io.ReadCloser
-	SensDStdin        io.WriteCloser
-	t1Running         bool
-	t2Running         bool
-	lightRelayLastDay string
-	mux               *sync.Mutex
+	SensDCmd       *exec.Cmd
+	SensDStdout    io.ReadCloser
+	SensDStdin     io.WriteCloser
+	t1Running      bool
+	t2Running      bool
+	RelayL1LastDay string
+	RelayL2LastDay string
+	SensorCache    map[string]float64
+	mux            *sync.Mutex
 }
 
 func (box *Box) Init() {
 	box.mux = &sync.Mutex{}
-
+	box.SensorCache = make(map[string]float64)
 }
 
 func (box *Box) Start() {
 	rl1Status, _ := BoxConfig.GetBool("devices/relay_l1/status")
 	if rl1Status == true {
-		if box.LightRelay == nil {
+		if box.RelayL1 == nil {
 			rl1GPIO, _ := BoxConfig.GetString("devices/relay_l1/gpio")
-			GoBox.LightRelay = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
+			GoBox.RelayL1 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
 		}
-		go box.relayL1Work()
+		go box.relayWork("l1")
+	}
+	rl2Status, _ := BoxConfig.GetBool("devices/relay_l2/status")
+	if rl2Status == true {
+		if box.RelayL2 == nil {
+			rl2GPIO, _ := BoxConfig.GetString("devices/relay_l2/gpio")
+			GoBox.RelayL2 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl2GPIO)
+		}
+		go box.relayWork("l2")
 	}
 	go box.Robot.Start()
 	var cerr error
@@ -160,12 +174,15 @@ func (box *Box) Start() {
 	}
 }
 
-func (box *Box) relayL1Work() {
+func (box *Box) relayWork(relayName string) {
+
+	// !TODO: make it generic/abstact and add conditional expression handling!
+
 	var tD string // curent day (yyyy-mm-dd)
 	var t string  // current time (hh:ii)
 	for {
-		tOn, _ := BoxConfig.GetString("devices/relay_l1/settings/on")
-		tOff, _ := BoxConfig.GetString("devices/relay_l1/settings/off")
+		tOn, _ := BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", strings.ToLower(relayName)))
+		tOff, _ := BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", strings.ToLower(relayName)))
 		if tOn == "" {
 			log.Fatalln("Missing Time-On / Time-Off parameters in raspberrypi.json config file!")
 		}
@@ -173,29 +190,29 @@ func (box *Box) relayL1Work() {
 			log.Fatalln("Time-On and Time-Off parameters are the same in raspberrypi.json config file!")
 		}
 
-		if box.LightRelay == nil {
-			rl1GPIO, _ := BoxConfig.GetString("devices/relay_l1/gpio")
-			box.LightRelay = gpio.NewGroveRelayDriver(box.RPIAdaptor, rl1GPIO)
+		if box.RelayL1 == nil {
+			rl1GPIO, _ := BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/gpio", strings.ToLower(relayName)))
+			box.RelayL1 = gpio.NewGroveRelayDriver(box.RPIAdaptor, rl1GPIO)
 		}
 
 		tD = arrow.Now().CFormat("%Y-%m-%d")
 		t = arrow.Now().CFormat("%H:%M")
 
-		if tOn > tOff && (box.lightRelayLastDay == "" || box.lightRelayLastDay < tD) {
-			if t >= tOff && box.lightRelayLastDay != "" && box.LightState() == true {
+		if tOn > tOff && (box.RelayL1LastDay == "" || box.RelayL1LastDay < tD) {
+			if t >= tOff && box.RelayL1LastDay != "" && box.LightState() == true {
 				box.LightOff()
-				box.lightRelayLastDay = tD
+				box.RelayL1LastDay = tD
 			} else if t >= tOn && box.LightState() == false {
 				box.LightOn()
-				box.lightRelayLastDay = tD
+				box.RelayL1LastDay = tD
 			}
 		} else if tOn < tOff {
 			if t >= tOff || t < tOn {
 				box.LightOff()
-				box.lightRelayLastDay = tD
+				box.RelayL1LastDay = tD
 			} else if t >= tOn && box.LightState() == false {
 				box.LightOn()
-				box.lightRelayLastDay = tD
+				box.RelayL1LastDay = tD
 			}
 		}
 		time.Sleep(10 * time.Second)
@@ -235,6 +252,7 @@ func (box *Box) ReadSensDPipe() {
 				t.Sensor = res.Sensor
 				t.Value = float64(res.Value)
 				t.Save()
+				box.SensorCache[fmt.Sprintf("%s/hum", t.Sensor)] = t.Value
 				//log.Println("// !DEBUG", "Saved sensor data!", res)
 			} else if res.Type == "t" {
 				t := Temperature{}
@@ -242,11 +260,63 @@ func (box *Box) ReadSensDPipe() {
 				t.Sensor = res.Sensor
 				t.Value = float64(res.Value)
 				t.Save()
+				box.SensorCache[fmt.Sprintf("%s/temp", t.Sensor)] = t.Value
 				//log.Println("// !DEBUG", "Saved sensor data!", res)
 			}
 		}
 
 	}
+}
+
+func (box *Box) GetEvalEnvData() map[string]interface{} {
+	parameters := make(map[string]interface{})
+
+	parameters["$tnow"] = arrow.Now().CFormat("%Y-%m-%d %H:%M:%S")
+	parameters["$toclock"] = arrow.Now().CFormat("%H:%M")
+
+	parameters["$l1_ton"], _ = BoxConfig.GetString("devices/relay_l1/settings/on")
+	parameters["$l1_toff"], _ = BoxConfig.GetString("devices/relay_l1/settings/off")
+	parameters["$l1_force"], _ = BoxConfig.GetInt64("devices/relay_l1/settings/off")
+	parameters["$l1_last_switch"] = box.RelayL1LastDay
+
+	parameters["$l2_ton"], _ = BoxConfig.GetString("devices/relay_l2/settings/on")
+	parameters["$l2_toff"], _ = BoxConfig.GetString("devices/relay_l2/settings/off")
+	parameters["$l2_force"], _ = BoxConfig.GetInt64("devices/relay_l2/settings/off")
+	parameters["$l2_last_switch"] = box.RelayL2LastDay
+
+	parameters["$t1_temp"], _ = box.SensorCache["t1/temp"]
+	parameters["$t1_hum"], _ = box.SensorCache["t1/hum"]
+	parameters["$t2_temp"], _ = box.SensorCache["t2/temp"]
+	parameters["$t2_hum"], _ = box.SensorCache["t2/hum"]
+
+	parameters["$d1_temp"], _ = box.SensorCache["d1/temp"]
+	parameters["$d1_hum"], _ = box.SensorCache["d1/hum"]
+	parameters["$d2_temp"], _ = box.SensorCache["d2/temp"]
+	parameters["$d2_hum"], _ = box.SensorCache["d2/hum"]
+
+	parameters["$s1_temp"], _ = box.SensorCache["s1/temp"]
+	parameters["$s1_hum"], _ = box.SensorCache["s1/hum"]
+	parameters["$s2_temp"], _ = box.SensorCache["s2/temp"]
+	parameters["$s2_hum"], _ = box.SensorCache["s2/hum"]
+
+	return parameters
+}
+
+func (box *Box) EvalRelayExpression(expr string) (bool, error) {
+	expression, err := govaluate.NewEvaluableExpression(expr)
+
+	if err != nil {
+		return false, err
+	}
+
+	result, err := expression.Evaluate(box.GetEvalEnvData())
+	cresult, cok := result.(bool)
+
+	if err != nil || !cok {
+		return false, err
+	}
+
+	return cresult, err
 }
 
 func (box *Box) RobotWork() {
@@ -350,26 +420,26 @@ func (box *Box) RobotState() bool {
 }
 
 func (box *Box) LightState() bool {
-	return box.LightRelay.State()
+	return box.RelayL1.State()
 }
 
 func (box *Box) LightOn() error {
 	box.mux.Lock()
-	err := box.LightRelay.On()
+	err := box.RelayL1.On()
 	box.mux.Unlock()
 	return err
 }
 
 func (box *Box) LightOff() error {
 	box.mux.Lock()
-	err := box.LightRelay.Off()
+	err := box.RelayL1.Off()
 	box.mux.Unlock()
 	return err
 }
 
 func (box *Box) LightToggle() error {
 	box.mux.Lock()
-	err := box.LightRelay.Toggle()
+	err := box.RelayL1.Toggle()
 	box.mux.Unlock()
 	return err
 }

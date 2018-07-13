@@ -46,6 +46,7 @@ func init() {
 		beego.NSRouter("/sys/time", &controllers.ServiceSys{}, "get:GetTime"),
 		beego.NSRouter("/sys/pistats", &controllers.ServiceSys{}, "get:GetPiStats"),
 		beego.NSRouter("/user", &controllers.ServiceUser{}),
+		beego.NSRouter("/export", &controllers.ServiceExport{}),
 		beego.NSRouter("/relay", &controllers.ServiceRelay{}))
 	beego.AddNamespace(serviceNS)
 	//beego.ErrorHandler("404", controllers.PageNotFound)

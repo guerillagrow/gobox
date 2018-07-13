@@ -6,6 +6,7 @@ import (
 
 	//"github.com/asdine/storm/q"
 
+	"context"
 	"time"
 
 	"encoding/json"
@@ -494,6 +495,60 @@ func (c *ServiceSys) GetTime() {
 
 func (c *ServiceSys) Post() {
 	c.Abort("500") // ! BLOCKED
+}
+
+type ServiceExport struct {
+	beego.Controller
+}
+
+func (c *ServiceExport) Get() {
+	c.Abort("500") // ! BLOCKED
+}
+
+func (c *ServiceExport) Post() {
+	// !TODO
+	c.Abort("500") // ! BLOCKED
+
+	sensorType, _ := c.GetStrings("type")
+	sensors := c.GetStrings("sensors", []string{})
+	fromRaw, _ := c.GetString("from")
+	toRaw, _ := c.GetString("from")
+	deleteExported, _ := c.GetBool("delete_exported", false)
+	statsTimeRaw, _ := c.GetInt64("stats_time", 0)
+	statsTime := time.Duration(statsTimeRaw)
+	fromDate, fdErr := arrow.CParse("%Y-%m-%d %H:%M:%S", fromRaw)
+	toDate, tdErr := arrow.CParse("%Y-%m-%d %H:%M:%S", toRaw)
+
+	if (sensorType != "temperature" && sensorType != "humidity") || len(sensors) < 1 || fdErr != nil || tdErr != nil {
+		c.Abort("500")
+	}
+
+	ctx, cancle := context.WithCancel(context.WithDeadline(context.Background(), time.Now().Add(1*time.Minute)))
+	defer cancle()
+
+	var res string
+	var rErr error
+
+	if sensorType == "temperature" {
+		res, rErr = models.ExportTemperature(ctx, sensors, "./export", fromDate, toDate, deleteExported, statsTime)
+	} else {
+		res, rErr = models.ExportHumidity(ctx, sensors, "./export", fromDate, toDate, deleteExported, statsTime)
+	}
+
+	if rErr != nil {
+		c.Abort("500")
+	}
+
+	res := JSONResp{
+		Data: map[string]interface{}{
+			"file": res,
+		},
+		Meta: map[string]interface{}{
+			"status": 200,
+		},
+	}
+	c.Data["json"] = res
+	c.ServeJSON()
 }
 
 func contains(a []string, b string) bool {

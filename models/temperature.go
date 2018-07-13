@@ -13,6 +13,42 @@ import (
 	"github.com/asdine/storm/q"
 )
 
+func GetCurrentTemperature(sensor string) Temperature {
+	t := Temperature{
+		Sensor: sensor,
+	}
+	res := TemperatureSlice{}
+	q := t.GetNode().Select(q.And(
+		q.Eq("Sensor", sensor),
+	))
+	q.Limit(1)
+	q.OrderBy("Created")
+	q.Reverse()
+	q.Find(&res)
+	if len(res) < 1 {
+		return t
+	}
+	return res[0]
+}
+
+func GetCurrentTemperature(sensor string) Humidity {
+	t := Humidity{
+		Sensor: sensor,
+	}
+	res := HumiditySlice{}
+	q := t.GetNode().Select(q.And(
+		q.Eq("Sensor", sensor),
+	))
+	q.Limit(1)
+	q.OrderBy("Created")
+	q.Reverse()
+	q.Find(&res)
+	if len(res) < 1 {
+		return t
+	}
+	return res[0]
+}
+
 type ISensorData interface {
 	GetCreated() time.Time
 	GetSensor() string
@@ -29,6 +65,11 @@ type Temperature struct {
 func (self Temperature) GetNode() storm.Node {
 	return DB.From("sensd", "temperature", self.Sensor)
 }
+
+func (self Temperature) GetStatsNode(t time.Duration) storm.Node {
+	return DB.From("stats", "sensd", "temperature", self.Sensor, t.String())
+}
+
 func (self Temperature) GetValue() float64 {
 	return self.Value
 }
@@ -156,6 +197,10 @@ type Humidity struct {
 
 func (self Humidity) GetNode() storm.Node {
 	return DB.From("sensd", "humidity", self.Sensor)
+}
+
+func (self Temperature) GetStatsNode(t time.Duration) storm.Node {
+	return DB.From("stats", "sensd", "humidity", self.Sensor, t.String())
 }
 
 func (self Humidity) GetCreated() time.Time {

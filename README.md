@@ -30,10 +30,10 @@ NOTE: I'm using GoBox in production but it's still considered beta till we reach
 ### 1.) Features
 
 * Standalone app no mysql, web server etc. required
-* Controlling of 2 Relays and 2 DHT11 sensors
+* Controlling of 2 Relays and 2 DHT11/DHT22 sensors
 * Switch relays based on boolean expressions
 * Standalone app no mysql, web server etc. required
-* Password protected web interface with multible users
+* Password protected web interface
 * Logging of temperature and humidity
 
 
@@ -52,7 +52,7 @@ NOTE: I'm using GoBox in production but it's still considered beta till we reach
 
 * Raspberry Pi Model 3 (arm6)
 * Jumper wires
-* 2 DHT11 sensors
+* 2 DHT11 / DHT22 sensors
 * 2 10 A relays (one for light & one for the exhaust fan)
 * 2 multiway connectors for your relays
 * For convenience a GPIO board
@@ -272,13 +272,18 @@ Big thanks to the developers of gobot.io! They made it so muche easier for me. C
 	($temp_t1 >= 30 && $temp_t2 >= 30 && $relay_l1_status == true)
 	
 	// Available variables inside an expression:
-	// $tmp_t1         = Temperature value of sensor T1
-	// $tmp_t2         = Temperature value of sensor T2
-	// $hum_t1         = Humidity value of sensor T1
-	// $hum_t2         = Humidity value of sensor T2
-	// $tcurrent        = Current time
-	// $ton             = Relay time on setting
-	// $toff            = Relay time off setting
+	// $t1_temp         = Temperature value of sensor T1 DHT11
+	// $t2_temp         = Temperature value of sensor T2 DHT11
+	// $t1_hum          = Humidity value of sensor T1 DHT11
+	// $t2_hum          = Humidity value of sensor T2 DHT11
+	// $d1_hum          = Humidity value of sensor D1 DHT22
+	// $d2_hum          = Humidity value of sensor D2 DHT22
+	// $d1_temp         = Temperature value of sensor D1 DHT22
+	// $d2_temp         = Temperature value of sensor D2 DHT22
+	// $tnow            = Current time (YYYY-MM-DD HH:ii:ss)
+	// $toclock         = Current time (HH:ii)
+	// $ton             = Relay time on setting (HH:ii)
+	// $toff            = Relay time off setting (HH:ii)
 	// $tlastswitch     = Last time the relay was toggled / switched
 	// $relay_l1_status = Current status of relay L1
 	// $relay_l2_status = Current status of relay L2
