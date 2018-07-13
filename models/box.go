@@ -130,12 +130,14 @@ type Box struct {
 	RelayL1LastDay string
 	RelayL2LastDay string
 	SensorCache    map[string]float64
+	RelayCache     map[string]string
 	mux            *sync.Mutex
 }
 
 func (box *Box) Init() {
 	box.mux = &sync.Mutex{}
 	box.SensorCache = make(map[string]float64)
+	box.RelayCache = make(map[string]string)
 }
 
 func (box *Box) Start() {
@@ -145,7 +147,7 @@ func (box *Box) Start() {
 			rl1GPIO, _ := BoxConfig.GetString("devices/relay_l1/gpio")
 			GoBox.RelayL1 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
 		}
-		go box.relayWork("l1")
+		go box.relayWork("l1", box.RelayL1)
 	}
 	rl2Status, _ := BoxConfig.GetBool("devices/relay_l2/status")
 	if rl2Status == true {
@@ -153,7 +155,7 @@ func (box *Box) Start() {
 			rl2GPIO, _ := BoxConfig.GetString("devices/relay_l2/gpio")
 			GoBox.RelayL2 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl2GPIO)
 		}
-		go box.relayWork("l2")
+		go box.relayWork("l2", box.RelayL2)
 	}
 	go box.Robot.Start()
 	var cerr error
@@ -174,7 +176,7 @@ func (box *Box) Start() {
 	}
 }
 
-func (box *Box) relayWork(relayName string) {
+func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) {
 
 	// !TODO: make it generic/abstact and add conditional expression handling!
 
@@ -198,21 +200,45 @@ func (box *Box) relayWork(relayName string) {
 		tD = arrow.Now().CFormat("%Y-%m-%d")
 		t = arrow.Now().CFormat("%H:%M")
 
-		if tOn > tOff && (box.RelayL1LastDay == "" || box.RelayL1LastDay < tD) {
-			if t >= tOff && box.RelayL1LastDay != "" && box.LightState() == true {
-				box.LightOff()
-				box.RelayL1LastDay = tD
-			} else if t >= tOn && box.LightState() == false {
-				box.LightOn()
-				box.RelayL1LastDay = tD
+		rlCond, _ := BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", strings.ToLower(relayName)))
+
+		if rlCond != "" {
+			condRes, berr := box.EvalRelayExpression(rlCond)
+			if berr != nil {
+				SaveException("internal", fmt.Sprintf("relay/%s", relayName), berr)
+			} else {
+				if condRes {
+					relayDevice.On()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				} else {
+					relayDevice.Off()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				}
 			}
-		} else if tOn < tOff {
-			if t >= tOff || t < tOn {
-				box.LightOff()
-				box.RelayL1LastDay = tD
-			} else if t >= tOn && box.LightState() == false {
-				box.LightOn()
-				box.RelayL1LastDay = tD
+		} else {
+			rlLastSwitch, _ := box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)]
+			if tOn > tOff && (rlLastSwitch == "" || rlLastSwitch < tD) {
+				if t >= tOff && rlLastSwitch != "" && relayDevice.State() == true {
+					relayDevice.Off()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				} else if t >= tOn && relayDevice.State() == false {
+					relayDevice.On()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				}
+			} else if tOn < tOff {
+				if t >= tOff || t < tOn {
+					relayDevice.Off()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				} else if t >= tOn && relayDevice.State() == false {
+					relayDevice.On()
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch", relayName)] = tD
+					box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", relayName)] = t
+				}
 			}
 		}
 		time.Sleep(10 * time.Second)
@@ -277,12 +303,14 @@ func (box *Box) GetEvalEnvData() map[string]interface{} {
 	parameters["$l1_ton"], _ = BoxConfig.GetString("devices/relay_l1/settings/on")
 	parameters["$l1_toff"], _ = BoxConfig.GetString("devices/relay_l1/settings/off")
 	parameters["$l1_force"], _ = BoxConfig.GetInt64("devices/relay_l1/settings/off")
-	parameters["$l1_last_switch"] = box.RelayL1LastDay
+	parameters["$l1_last_switch_day"], _ = box.RelayCache[fmt.Sprintf("relay_%s/last_switch", "l1")]
+	parameters["$l1_last_switch_time"], _ = box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", "l1")]
 
 	parameters["$l2_ton"], _ = BoxConfig.GetString("devices/relay_l2/settings/on")
 	parameters["$l2_toff"], _ = BoxConfig.GetString("devices/relay_l2/settings/off")
 	parameters["$l2_force"], _ = BoxConfig.GetInt64("devices/relay_l2/settings/off")
-	parameters["$l2_last_switch"] = box.RelayL2LastDay
+	parameters["$l2_last_switch_day"], _ = box.RelayCache[fmt.Sprintf("relay_%s/last_switch", "l2")]
+	parameters["$l2_last_switch_time"], _ = box.RelayCache[fmt.Sprintf("relay_%s/last_switch/time", "l2")]
 
 	parameters["$t1_temp"], _ = box.SensorCache["t1/temp"]
 	parameters["$t1_hum"], _ = box.SensorCache["t1/hum"]

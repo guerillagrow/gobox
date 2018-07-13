@@ -6,7 +6,8 @@
                 "condition": "",
                 "force": -1,
                 "off": "20:00",
-                "on": "05:00"
+                "on": "05:00",
+				"condition": ""
             },
             "status": true
         },
@@ -15,7 +16,8 @@
             "settings": {
                 "force": -1,
                 "off": "20:00",
-                "on": "05:00"
+                "on": "05:00",
+				"condition": ""
             },
             "status": true
         },

@@ -31,7 +31,7 @@ func GetCurrentTemperature(sensor string) Temperature {
 	return res[0]
 }
 
-func GetCurrentTemperature(sensor string) Humidity {
+func GetCurrentHumidity(sensor string) Humidity {
 	t := Humidity{
 		Sensor: sensor,
 	}
@@ -199,7 +199,7 @@ func (self Humidity) GetNode() storm.Node {
 	return DB.From("sensd", "humidity", self.Sensor)
 }
 
-func (self Temperature) GetStatsNode(t time.Duration) storm.Node {
+func (self Humidity) GetStatsNode(t time.Duration) storm.Node {
 	return DB.From("stats", "sensd", "humidity", self.Sensor, t.String())
 }
 

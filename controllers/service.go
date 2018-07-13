@@ -509,10 +509,10 @@ func (c *ServiceExport) Post() {
 	// !TODO
 	c.Abort("500") // ! BLOCKED
 
-	sensorType, _ := c.GetStrings("type")
+	sensorType := c.GetString("type", "")
 	sensors := c.GetStrings("sensors", []string{})
-	fromRaw, _ := c.GetString("from")
-	toRaw, _ := c.GetString("from")
+	fromRaw := c.GetString("from")
+	toRaw := c.GetString("from")
 	deleteExported, _ := c.GetBool("delete_exported", false)
 	statsTimeRaw, _ := c.GetInt64("stats_time", 0)
 	statsTime := time.Duration(statsTimeRaw)
@@ -523,16 +523,19 @@ func (c *ServiceExport) Post() {
 		c.Abort("500")
 	}
 
-	ctx, cancle := context.WithCancel(context.WithDeadline(context.Background(), time.Now().Add(1*time.Minute)))
+	ctx, cancle := context.WithDeadline(
+		context.Background(),
+		time.Now().Add(1*time.Minute),
+	)
 	defer cancle()
 
-	var res string
+	var resp string
 	var rErr error
 
 	if sensorType == "temperature" {
-		res, rErr = models.ExportTemperature(ctx, sensors, "./export", fromDate, toDate, deleteExported, statsTime)
+		resp, rErr = models.ExportTemperature(ctx, sensors, "./export", fromDate.Time, toDate.Time, deleteExported, statsTime)
 	} else {
-		res, rErr = models.ExportHumidity(ctx, sensors, "./export", fromDate, toDate, deleteExported, statsTime)
+		resp, rErr = models.ExportHumidity(ctx, sensors, "./export", fromDate.Time, toDate.Time, deleteExported, statsTime)
 	}
 
 	if rErr != nil {
@@ -541,7 +544,7 @@ func (c *ServiceExport) Post() {
 
 	res := JSONResp{
 		Data: map[string]interface{}{
-			"file": res,
+			"file": resp,
 		},
 		Meta: map[string]interface{}{
 			"status": 200,
