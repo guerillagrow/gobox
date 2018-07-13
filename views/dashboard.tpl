@@ -115,13 +115,15 @@
 		
 		
 		
+		{{if  or (.relay_l1) (.relay_l2)}}
 		  <div class="col-md-12">
 
   			<div class="row">
+				{{if .relay_l1}}
   				<div class="col-md-12">
   					<div class="content-box-large">
 		  				<div class="panel-heading">
-							<div class="panel-title">Relay Config</div>
+							<div class="panel-title">Relay L1 Config</div>
 							
 							<!--div class="panel-options" style="display:none;">
 								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
@@ -129,17 +131,23 @@
 							</div-->
 						</div>
 		  				<div class="panel-body">
-							<form class="form-horizontal" role="form" id="svc-relay-form" data-frmdest="/svc/relay" data-frmdata="">
+							<form class="form-horizontal" role="form" id="svc-relay-l1-form" data-frmdest="/svc/relay?target=l1" data-frmdata="">
 							  <div class="form-group">
-							    <label for="inputEmail3" class="col-sm-2 control-label">Time On</label>
+							    <label for="ton" class="col-sm-2 control-label">Time On</label>
 							    <div class="col-sm-10">
 							      <input type="text" class="form-control" name="ton" placeholder="On-Time">
 							    </div>
 							  </div>
 							  <div class="form-group">
-							    <label for="inputEmail3" class="col-sm-2 control-label">Time Off</label>
+							    <label for="toff" class="col-sm-2 control-label">Time Off</label>
 							    <div class="col-sm-10">
 							      <input type="text" class="form-control" name="toff" placeholder="Off-Time">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="cond" class="col-sm-2 control-label">Condition</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
 							    </div>
 							  </div>
 							  <div class="form-group" style="display:none;">
@@ -160,11 +168,12 @@
 		  				</div>
 		  			</div>
   				</div>
-				
-  				<div class="col-md-6" style="display:none;">
+				{{end}}
+				{{if .relay_l2}}
+  				<div class="col-md-12">
   					<div class="content-box-large">
 		  				<div class="panel-heading">
-							<div class="panel-title">Account Settings</div>
+							<div class="panel-title">Relay L2 Config</div>
 							
 							<!--div class="panel-options" style="display:none;">
 								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
@@ -172,17 +181,23 @@
 							</div-->
 						</div>
 		  				<div class="panel-body">
-							<form class="form-horizontal" role="form" id="svc-user-form" data-form-endpoint="/svc/relay">
+							<form class="form-horizontal" role="form" id="svc-relay-l2-form" data-frmdest="/svc/relay?target=l2" data-frmdata="">
 							  <div class="form-group">
-							    <label for="inputEmail3" class="col-sm-2 control-label">Email / Username</label>
+							    <label for="ton" class="col-sm-2 control-label">Time On</label>
 							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="ton" placeholder="username">
+							      <input type="text" class="form-control" name="ton" placeholder="On-Time">
 							    </div>
 							  </div>
 							  <div class="form-group">
-							    <label for="inputEmail3" class="col-sm-2 control-label">Password</label>
+							    <label for="toff" class="col-sm-2 control-label">Time Off</label>
 							    <div class="col-sm-10">
-							      <input type="password" class="form-control" name="toff" placeholder="password">
+							      <input type="text" class="form-control" name="toff" placeholder="Off-Time">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="cond" class="col-sm-2 control-label">Condition</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
 							    </div>
 							  </div>
 							  <div class="form-group" style="display:none;">
@@ -202,9 +217,11 @@
 							</form>
 		  				</div>
 		  			</div>
-  				</div>
+  				</div>				
+				{{end}}
 			</div>
-		</div>
+		{{end}}
+		
 		{{if  or (.sensor_t1) (.sensor_t2)}}
 		  <div class="col-md-12">
 
@@ -475,7 +492,12 @@
 				doPlot("#sensor-t2-chart","right","hour", d["incr"], d["temp"], d["hum"]);
 			});
 			{{end}}
-			libUX.form.ajaxFormLoad($("#svc-relay-form"));
+			{{if .relay_l1}}
+			libUX.form.ajaxFormLoad($("#svc-relay-l1-form"));
+			{{end}}
+			{{if .relay_l2}}
+			libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
+			{{end}}
 		}
 		
 		$(document).ready(function(){
@@ -563,11 +585,25 @@
 					}
 				});				
 			});
-			$("#svc-relay-form").on("submit", function(e){
+			
+			$("#svc-relay-l1-form").on("submit", function(e){
 				e.preventDefault();
 				//var fdata = JSON.stringify(getFormJSON($(e.target)));
 				
-				libUX.form.ajaxFormSubmit($(this), "/svc/relay", "POST", function(){
+				libUX.form.ajaxFormSubmit($(this), "/svc/relay?target=l1", "POST", function(){
+					$.jGrowl("Saved relay data", { 
+						life: 5000, 
+						closerTemplate: "<div>[ close all ]</div>",
+						closeTemplate: "×" 
+					});
+				});
+				
+			});
+			$("#svc-relay-l2-form").on("submit", function(e){
+				e.preventDefault();
+				//var fdata = JSON.stringify(getFormJSON($(e.target)));
+				
+				libUX.form.ajaxFormSubmit($(this), "/svc/relay?target=l2", "POST", function(){
 					$.jGrowl("Saved relay data", { 
 						life: 5000, 
 						closerTemplate: "<div>[ close all ]</div>",

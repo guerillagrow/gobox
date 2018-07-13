@@ -1,25 +1,34 @@
 {
     "devices": {
+        "d1": {
+            "gpio": "8",
+            "read_every": 1,
+            "status": true
+        },
+        "d2": {
+            "gpio": "27",
+            "read_every": 1,
+            "status": true
+        },
         "relay_l1": {
             "gpio": "11",
             "settings": {
-                "condition": "",
-                "force": -1,
+                "condition": "(t1_temp \u003e 30)",
+                "force": 0,
                 "off": "20:00",
-                "on": "05:00",
-				"condition": ""
+                "on": "08:00"
             },
             "status": true
         },
         "relay_l2": {
             "gpio": "17",
             "settings": {
+                "condition": "",
                 "force": -1,
                 "off": "20:00",
-                "on": "05:00",
-				"condition": ""
+                "on": "05:00"
             },
-            "status": true
+            "status": false
         },
         "t1": {
             "gpio": "5",
@@ -30,40 +39,30 @@
             "gpio": "22",
             "read_every": 1,
             "status": true
-        },
-        "d1": {
-            "gpio": "8",
-            "read_every": 1,
-            "status": true
-        },
-        "d2": {
-            "gpio": "27",
-            "read_every": 1,
-            "status": true
         }
     },
     "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
     "stats": {
-		"delete_older_than": 72,
-        "1m": {
-            "min_group_size": 0,
-            "status": true
-		},
         "10m": {
             "min_group_size": 0,
             "status": true
         },
-        "30m": {
-            "min_group_size": 0,
-            "status": false
-        },
         "1h": {
+            "min_group_size": 0,
+            "status": true
+        },
+        "1m": {
             "min_group_size": 0,
             "status": true
         },
         "24h": {
             "min_group_size": 0,
             "status": false
-		}
+        },
+        "30m": {
+            "min_group_size": 0,
+            "status": false
+        },
+        "delete_older_than": 72
     }
 }

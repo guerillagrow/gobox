@@ -49,5 +49,9 @@ func init() {
 		beego.NSRouter("/export", &controllers.ServiceExport{}),
 		beego.NSRouter("/relay", &controllers.ServiceRelay{}))
 	beego.AddNamespace(serviceNS)
+
+	beego.SetStaticPath("/static", "static")
+	beego.SetStaticPath("/export", "export")
+
 	//beego.ErrorHandler("404", controllers.PageNotFound)
 }

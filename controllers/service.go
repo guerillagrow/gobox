@@ -18,7 +18,7 @@ import (
 	arrow "github.com/bmuller/arrow/lib"
 	"github.com/go-ozzo/ozzo-validation"
 	//"github.com/go-ozzo/ozzo-validation/is"
-	//"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
@@ -30,9 +30,10 @@ type JSONResp struct {
 
 type FormRelayL1 struct {
 	//State bool   `json:"status"`
-	TOn  string `json:"ton"`
-	TOff string `json:"toff"`
-	Cond string `json:cond"`
+	Force int64  `json:"force"`
+	TOn   string `json:"ton"`
+	TOff  string `json:"toff"`
+	Cond  string `json:cond"`
 }
 
 func (f FormRelayL1) Validate() error {
@@ -53,6 +54,20 @@ func (f FormRelayL1) Validate() error {
 			}
 			_, err = arrow.CParse("%H:%M", f.TOff)
 			return err
+		}(),
+		"force": func() error {
+			err := validation.Validate(f.Force, validation.In(-1, 0, 1), is.Int)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(),
+		"cond": func() error {
+			if f.Cond != "" {
+				_, err := models.GoBox.EvalRelayExpression(f.Cond)
+				return err
+			}
+			return nil
 		}(),
 	}.Filter()
 	return err
@@ -123,6 +138,8 @@ func (c *ServiceRelay) Post() {
 
 	models.BoxConfig.Set("devices/relay_l1/settings/on", reqs.TOn)
 	models.BoxConfig.Set("devices/relay_l1/settings/off", reqs.TOff)
+	models.BoxConfig.Set("devices/relay_l1/settings/condition", reqs.Cond)
+	models.BoxConfig.Set("devices/relay_l1/settings/force", reqs.Force)
 	models.BoxConfig.SaveFilePretty(models.BoxConfig.File)
 	tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
 	tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
@@ -147,12 +164,16 @@ func (c *ServiceRelay) Get() {
 
 	tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
 	tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
+	force, _ := models.BoxConfig.GetInt64("devices/relay_l1/settings/force")
+	cond, _ := models.BoxConfig.GetString("devices/relay_l1/settings/condition")
 
 	res := JSONResp{
 		Data: map[string]interface{}{
 			"state": models.GoBox.LightState(),
 			"ton":   tOn,
 			"toff":  tOff,
+			"force": force,
+			"cond":  cond,
 		},
 		Meta: map[string]interface{}{
 			"status":   200,
@@ -539,6 +560,7 @@ func (c *ServiceExport) Post() {
 	}
 
 	if rErr != nil {
+		// !TODO
 		c.Abort("500")
 	}
 
