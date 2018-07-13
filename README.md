@@ -111,8 +111,7 @@ http://[raspberrypi]:8080
 
 This is really for those who have no clue how to access the Pi from windows and don't know  the "scp" and "ssh" command neither putty.
 
-1. Download Putty (To access the Pi whenever you want via SSH, see: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
-2. Download and install OpenSSH for windows (for guidance: https://winscp.net/eng/docs/guide_windows_openssh_server)
+1. Download Putty & PSCP(To access the Pi whenever you want via SSH, see: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
 3. Unpack the downloaded gobox_v*.zip folder.
 4. Open up your command promt (cmd.exe) and navigate into the folder containing the extracted files. Use following command to navigate (ignore the $-sign & replace path):
 
@@ -125,11 +124,16 @@ This is really for those who have no clue how to access the Pi from windows and 
 5. Exectute following commands replace $RPI_IP with the IP-Address of your Raspberry Pi:
 
 	```
-	scp -r ./views/ root@$RPI_IP:/usr/local/gobox/
-	scp -r ./static/ root@$RPI_IP:/usr/local/gobox/ 
-	scp ./cmd/gobox/gobox_arm root@$RPI_IP:/usr/local/bin/gobox
-	scp ./cmd/sensd/sensd_arm root@$RPI_IP:/usr/local/bin/sensd
-	ssh root@$RPI_IP
+	cd [Path of the extracted release folder]
+	pscp -r ./views/ root@$RPI_IP:/usr/local/gobox/
+	pscp -r ./static/ root@$RPI_IP:/usr/local/gobox/ 
+	pscp ./cmd/gobox/gobox_arm root@$RPI_IP:/usr/local/bin/gobox
+	pscp ./cmd/sensd/sensd_arm root@$RPI_IP:/usr/local/bin/sensd
+	
+	# Connect to your Pi using putty or the windows oppenssh client
+	# ssh root@$RPI_IP
+	# Run following commands on your Pi:
+	
 	chmod +x /etc/init.d/gobox
 	sudo update-rc.d gobox defaults
 	sudo update-rc.d gobox enable
@@ -203,6 +207,9 @@ Requirements:
 Run following command to build gobox:
 
 ```
+# Install  arm gcc compiler to later compile sensd
+$ sudo apt-get install gcc-arm-linux-gnueabihf
+# Build from source
 $ ./build.sh
 ```
 
