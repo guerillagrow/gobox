@@ -6,8 +6,8 @@
 # Required-Stop:     $local_fs $network $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Example
-# Description:       Example start-stop-daemon - Debian
+# Short-Description: Gobox growbox automation daemon
+# Description:       Gobox start-stop-daemon - Debian
 ### END INIT INFO
 
 NAME="gobox"

@@ -43,6 +43,8 @@ func init() {
 	serviceNS := beego.NewNamespace("svc",
 		beego.NSRouter("/sensors/temperature", &controllers.ServiceSensors{}, "get:GetTemp"),
 		beego.NSRouter("/sensors/humidity", &controllers.ServiceSensors{}, "get:GetHumidity"),
+		beego.NSRouter("/sys/time", &controllers.ServiceSys{}, "get:GetTime"),
+		beego.NSRouter("/sys/pistats", &controllers.ServiceSys{}, "get:GetPiStats"),
 		beego.NSRouter("/user", &controllers.ServiceUser{}),
 		beego.NSRouter("/relay", &controllers.ServiceRelay{}))
 	beego.AddNamespace(serviceNS)

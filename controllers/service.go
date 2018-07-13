@@ -18,6 +18,8 @@ import (
 	"github.com/go-ozzo/ozzo-validation"
 	//"github.com/go-ozzo/ozzo-validation/is"
 	//"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/mem"
 )
 
 type JSONResp struct {
@@ -244,9 +246,9 @@ func (c *ServiceSensors) GetTemp() {
 	)
 
 	if graph == 1 {
-		var resGraph [][2]int
+		var resGraph [][2]uint64
 		for _, r := range res {
-			resGraph = append(resGraph, [2]int{int(r.Created.Unix() * 1000), int(r.Value)})
+			resGraph = append(resGraph, [2]uint64{uint64(r.Created.Unix() * 1000), uint64(r.Value)})
 		}
 		c.Data["json"] = JSONResp{
 			Meta: map[string]interface{}{
@@ -330,9 +332,9 @@ func (c *ServiceSensors) GetHumidity() {
 	)
 
 	if graph == 1 {
-		var resGraph [][2]int
+		var resGraph [][2]uint64
 		for _, r := range res {
-			resGraph = append(resGraph, [2]int{int(r.Created.Unix() * 1000), int(r.Value)})
+			resGraph = append(resGraph, [2]uint64{uint64(r.Created.Unix() * 1000), uint64(r.Value)})
 		}
 		c.Data["json"] = JSONResp{
 			Meta: map[string]interface{}{
@@ -438,6 +440,60 @@ func (c *ServiceUser) CreateUser() {
 	}
 	c.Data["json"] = res
 	c.ServeJSON()
+}
+
+type ServiceSys struct {
+	beego.Controller
+}
+
+func (c *ServiceSys) Get() {
+	c.Abort("500") // ! BLOCKED
+}
+
+func (c *ServiceSys) GetPiStats() {
+	dstats, derr := disk.Usage("/")
+	mstats, merr := mem.VirtualMemory()
+	if derr != nil || merr != nil {
+		c.Abort("500")
+	}
+	res := JSONResp{
+		Data: map[string]interface{}{
+			"disk_total":        dstats.Total,
+			"disk_used":         dstats.Used,
+			"disk_used_percent": dstats.UsedPercent,
+			"disk_free":         dstats.Free,
+			"mem_total":         mstats.Total,
+			"mem_used":          mstats.Used,
+			"mem_used_percent":  mstats.UsedPercent,
+			"mem_free":          mstats.Free,
+		},
+		Meta: map[string]interface{}{
+			"status": 200,
+		},
+	}
+	c.Data["json"] = res
+	c.ServeJSON()
+}
+
+func (c *ServiceSys) GetTime() {
+	c.Abort("500") // ! BLOCKED
+	res := JSONResp{
+		Data: map[string]interface{}{
+			"t0": time.Now().Unix(),
+			"t1": time.Now().UnixNano(),
+			"t2": time.Now(),
+			"t3": arrow.Now().CFormat("%Y-%m-%d %H:%M:%S"),
+		},
+		Meta: map[string]interface{}{
+			"status": 200,
+		},
+	}
+	c.Data["json"] = res
+	c.ServeJSON()
+}
+
+func (c *ServiceSys) Post() {
+	c.Abort("500") // ! BLOCKED
 }
 
 func contains(a []string, b string) bool {

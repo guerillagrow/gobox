@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/guerillagrow/jstorage"
 
@@ -15,6 +16,8 @@ import (
 	"time"
 
 	dht "github.com/d2r2/go-dht"
+	//i2c "github.com/d2r2/go-i2c"
+	//si7021 "github.com/d2r2/go-si7021"
 )
 
 // !TODO: Add d1+d2 DHT22 sensors
@@ -46,8 +49,19 @@ func main() {
 		fmt.Println("JSTorage Failure!", err)
 		return
 	}
-	go sensorT1Work()
-	go sensorT2Work()
+	go sensorWorkT("T1", dht.DHT11) // DHT11
+	go sensorWorkT("T2", dht.DHT11) // DHT11
+
+	go sensorWorkT("D1", dht.DHT22) // DHT22
+	go sensorWorkT("D2", dht.DHT22) // DHT22
+
+	statusS1, _ := Config.GetBool(fmt.Sprintf("devices/%s/status", "s1"))
+	statusS2, _ := Config.GetBool(fmt.Sprintf("devices/%s/status", "s2"))
+
+	if statusS1 || statusS2 {
+		initSi7021()
+	}
+
 	go func() {
 		for {
 			time.Sleep(10 * time.Second)
@@ -67,14 +81,20 @@ func readRoutine() {
 	}
 }
 
-func sensorT1Work() {
+func sensorWorkT(sensorName string, dhtType dht.SensorType) {
 	for {
+		status, cerr := Config.GetBool(fmt.Sprintf("devices/%s/status", strings.ToLower(sensorName)))
+		if !status {
+			time.Sleep(10 * time.Second)
+			continue
+		}
 		var res common.Response
-		sensorPin, _ := Config.GetInt("devices/t1/gpio")
-		tmp, hum, _, err := dht.ReadDHTxxWithRetry(dht.DHT11, int(sensorPin), false, 4)
-		/*tmp := 0
-		hum := 0
-		var err error*/
+		sensorPin, cerr := Config.GetInt(fmt.Sprintf("devices/%s/gpio", strings.ToLower(sensorName)))
+		if cerr != nil {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		tmp, hum, _, err := dht.ReadDHTxxWithRetry(dhtType, int(sensorPin), false, 4)
 
 		if err != nil {
 			//log.Println(err)
@@ -84,7 +104,7 @@ func sensorT1Work() {
 		tc := time.Now()
 		res = common.Response{}
 		res.Created = tc
-		res.Sensor = "T1"
+		res.Sensor = strings.ToUpper(sensorName)
 		res.Type = "t"
 		res.Value = float64(tmp)
 
@@ -93,7 +113,7 @@ func sensorT1Work() {
 		}
 		res = common.Response{}
 		res.Created = tc
-		res.Sensor = "T1"
+		res.Sensor = strings.ToUpper(sensorName)
 		res.Type = "h"
 		res.Value = float64(hum)
 
@@ -103,7 +123,7 @@ func sensorT1Work() {
 		// !DEBUG
 		//log.Println("Save sensor data T1.", "Pin:", sensorPin, "Temp:", t1.Value, "Humidity:", h1.Value)
 
-		t1Sleep, _ := Config.GetInt("devices/t1/read_every")
+		t1Sleep, _ := Config.GetInt(fmt.Sprintf("devices/%s/read_every", strings.ToLower(sensorName)))
 		if t1Sleep < 1 {
 			t1Sleep = 30
 		}
@@ -111,19 +131,28 @@ func sensorT1Work() {
 	}
 }
 
-func sensorT2Work() {
-	for {
+func initSi7021() {
 
+	// !TODO
+
+	//go sensorWorkS("S1") // Si7021
+	//go sensorWorkS("S2") // Si7021
+}
+
+func sensorWorkS(sensorName string) {
+	for {
+		status, cerr := Config.GetBool(fmt.Sprintf("devices/%s/status", strings.ToLower(sensorName)))
+		if !status {
+			time.Sleep(5 * time.Second)
+			continue
+		}
 		var res common.Response
-		sensorPin, ferr := Config.GetInt("devices/t2/gpio")
-		if ferr != nil {
-			fmt.Println(ferr)
-			return
+		sensorPin, cerr := Config.GetInt(fmt.Sprintf("devices/%s/gpio", strings.ToLower(sensorName)))
+		if cerr != nil {
+			time.Sleep(2 * time.Second)
+			continue
 		}
 		tmp, hum, _, err := dht.ReadDHTxxWithRetry(dht.DHT11, int(sensorPin), false, 4)
-		/*tmp := 0
-		hum := 0
-		var err error*/
 
 		if err != nil {
 			//log.Println(err)
@@ -133,17 +162,16 @@ func sensorT2Work() {
 		tc := time.Now()
 		res = common.Response{}
 		res.Created = tc
-		res.Sensor = "T2"
+		res.Sensor = strings.ToUpper(sensorName)
 		res.Type = "t"
 		res.Value = float64(tmp)
 
 		select {
 		case mainQueue <- res:
 		}
-
 		res = common.Response{}
 		res.Created = tc
-		res.Sensor = "T2"
+		res.Sensor = strings.ToUpper(sensorName)
 		res.Type = "h"
 		res.Value = float64(hum)
 
@@ -151,12 +179,12 @@ func sensorT2Work() {
 		case mainQueue <- res:
 		}
 		// !DEBUG
-		//log.Println("Save sensor data T2.", "Pin:", sensorPin, "Temp:", t1.Value, "Humidity:", h1.Value)
+		//log.Println("Save sensor data T1.", "Pin:", sensorPin, "Temp:", t1.Value, "Humidity:", h1.Value)
 
-		t2Sleep, _ := Config.GetInt("devices/t2/read_every")
-		if t2Sleep < 1 {
-			t2Sleep = 30
+		t1Sleep, _ := Config.GetInt(fmt.Sprintf("devices/%s/read_every", strings.ToLower(sensorName)))
+		if t1Sleep < 1 {
+			t1Sleep = 30
 		}
-		time.Sleep(time.Duration(t2Sleep) * time.Second)
+		time.Sleep(time.Duration(t1Sleep) * time.Second)
 	}
 }
