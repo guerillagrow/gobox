@@ -145,7 +145,7 @@ func (box *Box) Start() {
 	if rl1Status == true {
 		if box.RelayL1 == nil {
 			rl1GPIO, _ := BoxConfig.GetString("devices/relay_l1/gpio")
-			GoBox.RelayL1 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl1GPIO)
+			box.RelayL1 = gpio.NewGroveRelayDriver(box.RPIAdaptor, rl1GPIO)
 		}
 		go box.relayWork("l1", box.RelayL1)
 	}
@@ -153,7 +153,7 @@ func (box *Box) Start() {
 	if rl2Status == true {
 		if box.RelayL2 == nil {
 			rl2GPIO, _ := BoxConfig.GetString("devices/relay_l2/gpio")
-			GoBox.RelayL2 = gpio.NewGroveRelayDriver(GoBox.RPIAdaptor, rl2GPIO)
+			box.RelayL2 = gpio.NewGroveRelayDriver(box.RPIAdaptor, rl2GPIO)
 		}
 		go box.relayWork("l2", box.RelayL2)
 	}
