@@ -2,6 +2,8 @@ package controllers
 
 import (
 	//"fmt"
+	//"log"
+
 	"github.com/guerillagrow/gobox/models"
 
 	//"github.com/asdine/storm/q"
@@ -18,7 +20,6 @@ import (
 	arrow "github.com/bmuller/arrow/lib"
 	"github.com/go-ozzo/ozzo-validation"
 	//"github.com/go-ozzo/ozzo-validation/is"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
@@ -30,10 +31,10 @@ type JSONResp struct {
 
 type FormRelayL1 struct {
 	//State bool   `json:"status"`
-	Force int64  `json:"force"`
+	Force string `json:"force"`
 	TOn   string `json:"ton"`
 	TOff  string `json:"toff"`
-	Cond  string `json:cond"`
+	Cond  string `json:"cond""`
 }
 
 func (f FormRelayL1) Validate() error {
@@ -56,7 +57,7 @@ func (f FormRelayL1) Validate() error {
 			return err
 		}(),
 		"force": func() error {
-			err := validation.Validate(f.Force, validation.In(-1, 0, 1), is.Int)
+			err := validation.Validate(f.Force, validation.In("-1", "0", "1"))
 			if err != nil {
 				return err
 			}
@@ -70,19 +71,8 @@ func (f FormRelayL1) Validate() error {
 			return nil
 		}(),
 	}.Filter()
-	return err
 
-	/*return validation.ValidateStruct(&f,
-		// Street cannot be empty, and the length must between 5 and 50
-		validation.Field(&f.State, validation.Required),
-		// City cannot be empty, and the length must between 5 and 50
-		//validation.Field(&f.TOn, validation.Required, validation.Length(5, 50)),
-		// State cannot be empty, and must be a string consisting of two letters in upper case
-		validation.Field(&f.TOn, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{2}\\:[0-9]{2}$"))),
-		validation.Field(&f.TOff, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{2}\\:[0-9]{2}$"))),
-		// State cannot be empty, and must be a string consisting of five digits
-		//validation.Field(&a.Zip, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{5}$"))),
-	)*/
+	return err
 }
 
 type ServiceRelay struct {
@@ -139,22 +129,27 @@ func (c *ServiceRelay) Post() {
 	models.BoxConfig.Set("devices/relay_l1/settings/on", reqs.TOn)
 	models.BoxConfig.Set("devices/relay_l1/settings/off", reqs.TOff)
 	models.BoxConfig.Set("devices/relay_l1/settings/condition", reqs.Cond)
-	models.BoxConfig.Set("devices/relay_l1/settings/force", reqs.Force)
+	models.BoxConfig.SetInt64("devices/relay_l1/settings/force", reqs.Force)
 	models.BoxConfig.SaveFilePretty(models.BoxConfig.File)
 	tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
 	tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
+	force, _ := models.BoxConfig.GetInt64("devices/relay_l1/settings/force")
+	cond, _ := models.BoxConfig.GetString("devices/relay_l1/settings/condition")
 
 	res := JSONResp{
 		Data: map[string]interface{}{
 			"status": models.GoBox.LightState(),
 			"ton":    tOn,
 			"toff":   tOff,
+			"cond":   cond,
+			"force":  force,
 		},
 		Meta: map[string]interface{}{
 			"status": 200,
 		},
 	}
 	c.Data["json"] = res
+
 	c.ServeJSON()
 
 }

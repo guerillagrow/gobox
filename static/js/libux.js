@@ -17,9 +17,11 @@ var libUX = {
 			felems.each(function(ix, fe){
 				var me = $(this);
 				if (me.attr("name") != "") {	
-					if (me.attr("type") == "checkbox") {
-						data[me.attr("name")] = me.is(":checked");
-					} else {
+					if (me.attr("type") == "checkbox" && me.is(":checked")) {
+						data[me.attr("name")] = me.val();
+					}else if (me.attr("type") == "radio" && me.is(":checked")) {
+						data[me.attr("name")] = me.val();
+					} else if (data[me.attr("name")] === undefined){
 						data[me.attr("name")] = me.val();						
 					}
 				}
@@ -37,16 +39,20 @@ var libUX = {
 				}
 			}
 			
+			// !TODO
+			
 			$.ajax({
 				url: url, 
 				//data: JSON.stringify(me.getData(elem)),
 				method: "GET",
-    			dataType: "json",
+    			    dataType: "json",
 				success: function(opt){
 					if(typeof opt.data == "object"){
 						$.each(opt.data, function(k, v){
 							var iel = elem.find('[name="' + k + '"]').first();
-							if(iel.is('input') || iel.is('textarea')){
+							if(iel.is("input") && iel.attr("type") == "radio"){
+								elem.find('input[name="' + k + '"][value="' + v + '"]').first().prop("checked", true);
+							}else if(iel.is('input') || iel.is('textarea')){
 								iel.val(v);
 							}
 							/* else if(iel.is('select')){

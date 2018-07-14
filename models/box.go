@@ -201,10 +201,19 @@ func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) 
 		t = arrow.Now().CFormat("%H:%M")
 
 		rlCond, _ := BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", strings.ToLower(relayName)))
+		rlForce, _ := BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/settings/force", strings.ToLower(relayName)))
 
-		if rlCond != "" {
+		if rlForce != 0 && (rlForce == 1 || rlForce == -1) {
+
+			if rlForce == 1 {
+				relayDevice.On()
+			} else {
+				relayDevice.Off()
+			}
+
+		} else if rlCond != "" {
 			condRes, berr := box.EvalRelayExpression(rlCond)
-			log.Println(box.GetEvalEnvData())
+
 			if berr != nil {
 				log.Println(berr)
 				SaveException("internal", fmt.Sprintf("relay/%s", relayName), berr)

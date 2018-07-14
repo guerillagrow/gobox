@@ -113,6 +113,29 @@ func T2Bytes(g interface{}) ([]byte, error) {
 	return T2Bytes(g)
 }*/
 
+func T2Int32(g interface{}) (int32, error) {
+	v, err := T2String(g)
+	if err != nil {
+		return int32(0), err
+	}
+	i, ierr := strconv.Atoi(v)
+	if ierr != nil {
+		return int32(0), ierr
+	}
+	return int32(i), nil
+}
+func T2Int64(g interface{}) (int64, error) {
+	v, err := T2String(g)
+	if err != nil {
+		return int64(0), err
+	}
+	i, ierr := strconv.Atoi(v)
+	if ierr != nil {
+		return int64(0), ierr
+	}
+	return int64(i), nil
+}
+
 func T2Int(g interface{}) (int64, error) {
 	v, err := T2String(g)
 	if err != nil {
@@ -159,6 +182,15 @@ func T2Float64(g interface{}) (float64, error) {
 	}
 	f64, ferr := strconv.ParseFloat(v, 64)
 	return f64, ferr
+}
+
+func T2Float32(g interface{}) (float32, error) {
+	v, err := T2String(g)
+	if err != nil {
+		return float32(0), err
+	}
+	f64, ferr := strconv.ParseFloat(v, 64)
+	return float32(f64), ferr
 }
 
 func T2Bool(g interface{}) (bool, error) {

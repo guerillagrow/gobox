@@ -150,12 +150,26 @@
 							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
 							    </div>
 							  </div>
-							  <div class="form-group" style="display:none;">
-							    <div class="col-sm-offset-2 col-sm-10">
-							      <div class="checkbox">
+							  <div class="form-group" style="">
+							    <label for="cond" class="col-sm-2 control-label">Force</label>
+							    <div class="col-sm-10">
+							      <div class="checkbox">									
 							        <label>
 							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="-1" name="force"> Off
 							        </label>
+									
+							        <label>
+							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="1" name="force"> On
+							        </label>
+									
+							        <label>
+							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="0" name="force"> None
+							        </label>
+									
+									
 							      </div>
 							    </div>
 							  </div>

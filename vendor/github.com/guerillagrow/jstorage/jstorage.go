@@ -119,11 +119,71 @@ func (self *Storage) LoadFile(filepath string) error {
 func (self *Storage) Set(k string, v interface{}) error {
 	self.check()
 	self.Mux.Lock()
+	defer self.Mux.Unlock()
 
 	err := self.set(k, v)
-	self.Mux.Unlock()
 	return err
 }
+
+func (self *Storage) SetInt64(k string, v interface{}) error {
+	self.check()
+	self.Mux.Lock()
+	defer self.Mux.Unlock()
+
+	vc, verr := tconv.T2Int64(v)
+	if verr != nil {
+		return verr
+	}
+	err := self.set(k, vc)
+	return err
+}
+
+func (self *Storage) SetInt32(k string, v interface{}) error {
+	self.check()
+	self.Mux.Lock()
+	defer self.Mux.Unlock()
+
+	vc, verr := tconv.T2Int32(v)
+	if verr != nil {
+		return verr
+	}
+
+	err := self.set(k, vc)
+	return err
+}
+
+func (self *Storage) SetFloat64(k string, v interface{}) error {
+	self.check()
+	self.Mux.Lock()
+	defer self.Mux.Unlock()
+
+	vc, verr := tconv.T2Float64(v)
+	if verr != nil {
+		return verr
+	}
+
+	err := self.set(k, vc)
+	return err
+}
+
+func (self *Storage) SetFloat32(k string, v interface{}) error {
+	self.check()
+	self.Mux.Lock()
+	defer self.Mux.Unlock()
+
+	vc, verr := tconv.T2Float32(v)
+	if verr != nil {
+		return verr
+	}
+
+	err := self.set(k, vc)
+	return err
+}
+
+func (self *Storage) SetString(k string, v interface{}) error {
+	return self.Set(k, v)
+}
+
 func (self *Storage) set(k string, v interface{}) error {
 
 	keyparts := strings.Split(strings.Trim(k, "/"), "/")
