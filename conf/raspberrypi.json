@@ -13,10 +13,10 @@
         "relay_l1": {
             "gpio": "11",
             "settings": {
-                "condition": "(t1_temp \u003e 30)",
+                "condition": "",
                 "force": 0,
                 "off": "20:00",
-                "on": "08:00"
+                "on": "06:00"
             },
             "status": true
         },
@@ -24,11 +24,11 @@
             "gpio": "17",
             "settings": {
                 "condition": "",
-                "force": -1,
+                "force": 0,
                 "off": "20:00",
-                "on": "05:00"
+                "on": "09:00"
             },
-            "status": false
+            "status": true
         },
         "t1": {
             "gpio": "5",

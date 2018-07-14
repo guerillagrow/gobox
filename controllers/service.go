@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	//"fmt"
+	"fmt"
 	//"log"
 
 	"github.com/guerillagrow/gobox/models"
@@ -22,6 +22,7 @@ import (
 	//"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"gobot.io/x/gobot/drivers/gpio"
 )
 
 type JSONResp struct {
@@ -95,6 +96,21 @@ func (c *ServiceRelay) Post() {
 		c.Abort("500")
 	}*/
 
+	relayName := c.GetString("target")
+	var relayDevice *gpio.GroveRelayDriver
+
+	if relayName != "l1" && relayName != "l2" {
+		c.Abort("500")
+	}
+
+	if relayName == "l1" {
+		relayDevice = models.GoBox.RelayL1
+	} else {
+		relayDevice = models.GoBox.RelayL2
+	}
+	if relayDevice == nil {
+		c.Abort("500")
+	}
 	reqs := FormRelayL1{}
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
 
@@ -106,12 +122,12 @@ func (c *ServiceRelay) Post() {
 
 	if verr != nil {
 
-		tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
-		tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
+		tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
+		tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
 
 		res := JSONResp{
 			Data: map[string]interface{}{
-				"state": models.GoBox.LightState(),
+				"state": relayDevice.State(),
 				"ton":   tOn,
 				"toff":  tOff,
 			},
@@ -126,19 +142,19 @@ func (c *ServiceRelay) Post() {
 		return
 	}
 
-	models.BoxConfig.Set("devices/relay_l1/settings/on", reqs.TOn)
-	models.BoxConfig.Set("devices/relay_l1/settings/off", reqs.TOff)
-	models.BoxConfig.Set("devices/relay_l1/settings/condition", reqs.Cond)
-	models.BoxConfig.SetInt64("devices/relay_l1/settings/force", reqs.Force)
+	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/on", relayName), reqs.TOn)
+	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/off", relayName), reqs.TOff)
+	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/condition", relayName), reqs.Cond)
+	models.BoxConfig.SetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName), reqs.Force)
 	models.BoxConfig.SaveFilePretty(models.BoxConfig.File)
-	tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
-	tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
-	force, _ := models.BoxConfig.GetInt64("devices/relay_l1/settings/force")
-	cond, _ := models.BoxConfig.GetString("devices/relay_l1/settings/condition")
+	tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
+	tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
+	force, _ := models.BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName))
+	cond, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", relayName))
 
 	res := JSONResp{
 		Data: map[string]interface{}{
-			"status": models.GoBox.LightState(),
+			"status": relayDevice.State(),
 			"ton":    tOn,
 			"toff":   tOff,
 			"cond":   cond,
@@ -157,14 +173,31 @@ func (c *ServiceRelay) Post() {
 func (c *ServiceRelay) Get() {
 	c.StartSession()
 
-	tOn, _ := models.BoxConfig.GetString("devices/relay_l1/settings/on")
-	tOff, _ := models.BoxConfig.GetString("devices/relay_l1/settings/off")
-	force, _ := models.BoxConfig.GetInt64("devices/relay_l1/settings/force")
-	cond, _ := models.BoxConfig.GetString("devices/relay_l1/settings/condition")
+	relayName := c.GetString("target")
+	var relayDevice *gpio.GroveRelayDriver
+
+	if relayName != "l1" && relayName != "l2" {
+		c.Abort("500")
+	}
+
+	if relayName == "l1" {
+		relayDevice = models.GoBox.RelayL1
+	} else {
+		relayDevice = models.GoBox.RelayL2
+	}
+
+	if relayDevice == nil {
+		c.Abort("500")
+	}
+
+	tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
+	tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
+	force, _ := models.BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName))
+	cond, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", relayName))
 
 	res := JSONResp{
 		Data: map[string]interface{}{
-			"state": models.GoBox.LightState(),
+			"state": relayDevice.State(),
 			"ton":   tOn,
 			"toff":  tOff,
 			"force": force,

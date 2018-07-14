@@ -172,7 +172,21 @@
 									
 							      </div>
 							    </div>
-							  </div>
+								
+								<!--div class="btn-group btn-group-toggle" data-toggle="buttons">
+								  <label class="btn btn-secondary active">
+								    <input type="radio" name="force" autocomplete="off" value="1"> On
+								  </label>
+								  <label class="btn btn-secondary">
+								    <input type="radio" name="force" autocomplete="off" value="-1"> Off
+								  </label>
+								  <label class="btn btn-secondary">
+								    <input type="radio" name="force" autocomplete="off" value="0"> None
+								  </label>
+								</div-->
+							  
+							
+							</div>
 							  <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
 							      <button type="submit" class="btn btn-primary">Save</button>
@@ -214,14 +228,30 @@
 							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
 							    </div>
 							  </div>
-							  <div class="form-group" style="display:none;">
-							    <div class="col-sm-offset-2 col-sm-10">
-							      <div class="checkbox">
+							  <div class="form-group" style="">
+							
+							    <label for="cond" class="col-sm-2 control-label">Force</label>
+							    <div class="col-sm-10">
+							      <div class="checkbox">									
 							        <label>
 							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="-1" name="force"> Off
 							        </label>
+									
+							        <label>
+							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="1" name="force"> On
+							        </label>
+									
+							        <label>
+							          <!--input type="checkbox" name="status"> Relay Status -->
+								        <input type="radio" value="0" name="force"> None
+							        </label>
+									
+									
 							      </div>
 							    </div>
+								
 							  </div>
 							  <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
