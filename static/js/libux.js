@@ -123,6 +123,9 @@ var libUX = {
 	url: {
 		
 	    params: function(url){
+			
+			// !TODO: fix param handling if no "?" inside url
+			// !DEBUG
 	
 	        if(typeof url === 'string'){
 	        
@@ -156,10 +159,18 @@ var libUX = {
 		
 	    addParam: function(url, param, val){
 	        
+			// !TODO: fix param handling if no "?" inside url
+			// !DEBUG
+			
 			var me = this;
 	        var paramsList = me.params(url);
 	        var paramStr = '';
 	        paramsList[param] = val;
+			var index = url.indexOf('?');
+			
+			if(index == -1) {
+				index = 0;
+			}
 	        
 	        if(Object.keys(paramsList).length >= 1){	            
 	            var i = 0;
@@ -170,7 +181,7 @@ var libUX = {
 	            });	        
 	        }
 	        
-	        var newUrl = url.substr(0, url.indexOf('?')) + (paramStr != '' ? '?' + paramStr : '');
+	        var newUrl = url.substr(0, index) + (paramStr != '' ? '?' + paramStr : '');
 			return newUrl;
 	        
 	    }

@@ -89,13 +89,16 @@ func (f FormUser) Validate() error {
 
 	err := validation.Errors{
 		"name": func() error {
-			err := validation.Validate(f.Name, validation.Required, validation.Min(4))
+			err := validation.Validate(f.Name, validation.Required, validation.Length(4, 15))
 			if err != nil {
 				return err
 			}
 			return nil
 		}(),
 		"email": func() error {
+			if f.Email == "root@localhost" {
+				return nil
+			}
 			err := validation.Validate(f.Email, validation.Required, is.Email)
 			if err != nil {
 				return err
@@ -104,14 +107,14 @@ func (f FormUser) Validate() error {
 			return nil
 		}(),
 		"password": func() error {
-			err := validation.Validate(f.Password, validation.Min(5))
+			err := validation.Validate(f.Password, validation.Length(4, 255))
 			if err != nil {
 				return err
 			}
 			return nil
 		}(),
 		"current_password": func() error {
-			err := validation.Validate(f.CurrentPassword, validation.Min(5))
+			err := validation.Validate(f.CurrentPassword, validation.Required, validation.Length(4, 255))
 			if err != nil {
 				return err
 			}
@@ -510,6 +513,7 @@ func (c *ServiceUser) Post() {
 	}
 
 	err = reqs.Validate()
+	fmt.Println("svc/user validate:", err)
 
 	if err != nil {
 		res = JSONResp{
@@ -522,6 +526,7 @@ func (c *ServiceUser) Post() {
 		}
 		c.Data["json"] = res
 		c.ServeJSON()
+		return
 	}
 
 	user.Name = reqs.Name
@@ -533,6 +538,7 @@ func (c *ServiceUser) Post() {
 
 	err = user.Save()
 	reqs.Password = ""
+	fmt.Println("svc/user saved user:", user.Email)
 
 	if err != nil {
 		res = JSONResp{
@@ -555,6 +561,7 @@ func (c *ServiceUser) Post() {
 	}
 
 	c.Data["json"] = res
+	c.ServeJSON()
 }
 
 type ServiceSys struct {

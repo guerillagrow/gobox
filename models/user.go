@@ -24,12 +24,14 @@ func (u *User) Delete() error {
 }
 
 func (u *User) Save() error {
-	hash, err := passlib.Hash(u.Password)
-	if err != nil {
-		return err
+	if u.Password != "" {
+		hash, err := passlib.Hash(u.Password)
+		if err != nil {
+			return err
+		}
+		u.Password = ""
+		u.PwHash = hash
 	}
-	u.Password = ""
-	u.PwHash = hash
 	return DB.Save(u)
 }
 

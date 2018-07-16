@@ -690,7 +690,7 @@
 				e.preventDefault();
 				//var fdata = JSON.stringify(getFormJSON($(e.target)));
 				
-				libUX.form.ajaxFormSubmit($(this), "/svc/user", "POST", function(){
+				libUX.form.ajaxFormSubmit($(this), "/svc/user?x=1", "POST", function(){
 					$.jGrowl("Saved account settings", { 
 						life: 5000, 
 						closerTemplate: "<div>[ close all ]</div>",
