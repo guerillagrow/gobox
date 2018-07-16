@@ -473,7 +473,17 @@ func (c *ServiceUser) Get() {
 	user, err := models.GetUserByID(userID)
 	var res JSONResp
 	if err != nil || user.ID < 1 {
-		c.Abort("500")
+		res = JSONResp{
+			Data: nil,
+			Meta: map[string]interface{}{
+				"status":   500,
+				"errors":   err,
+				"userID":   user.ID,
+				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
+			},
+		}
+		c.Data["json"] = res
+		c.ServeJSON()
 	}
 	user.PwHash = ""
 	res = JSONResp{
@@ -502,7 +512,18 @@ func (c *ServiceUser) Post() {
 	user, err := models.GetUserByID(userID)
 
 	if err != nil || user.ID < 1 {
-		c.Abort("500")
+		res = JSONResp{
+			Data: nil,
+			Meta: map[string]interface{}{
+				"status":   500,
+				"errors":   err,
+				"userID":   user.ID,
+				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
+			},
+		}
+		c.Data["json"] = res
+		c.ServeJSON()
+		return
 	}
 
 	reqs := FormUser{}
