@@ -22,8 +22,8 @@ type CSRFManager struct {
 
 func (c *CSRFManager) getTokenData(scope string, ctx *context.Context) (string, time.Time) {
 
-	token, err1 := ctx.Input.CruSession.Get(fmt.Sprintf("csrf/%s/token", scope)).(string)
-	expire, err2 := ctx.Input.CruSession.Get(fmt.Sprintf("csrf/%s/expire", scope)).(time.Time)
+	token, _ := ctx.Input.CruSession.Get(fmt.Sprintf("csrf/%s/token", scope)).(string)
+	expire, _ := ctx.Input.CruSession.Get(fmt.Sprintf("csrf/%s/expire", scope)).(time.Time)
 
 	return token, expire
 }
@@ -34,7 +34,7 @@ func (c *CSRFManager) SetToken(scope string, lifetime time.Duration, ctx *contex
 		lifetime = (24 * 7) * time.Hour
 	}
 
-	etoken, eexpire := c.getTokenData(scope, ctx)
+	etoken, _ := c.getTokenData(scope, ctx)
 
 	if etoken != "" {
 		ctx.Input.CruSession.Set(fmt.Sprintf("csrf/%s/expire", scope), time.Now().Add(lifetime))

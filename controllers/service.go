@@ -9,6 +9,7 @@ import (
 	//"github.com/asdine/storm/q"
 
 	"context"
+	"errors"
 	"time"
 
 	"encoding/json"
@@ -19,7 +20,7 @@ import (
 	"github.com/astaxie/beego"
 	arrow "github.com/bmuller/arrow/lib"
 	"github.com/go-ozzo/ozzo-validation"
-	//"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"gobot.io/x/gobot/drivers/gpio"
@@ -68,6 +69,55 @@ func (f FormRelayL1) Validate() error {
 			if f.Cond != "" {
 				_, err := models.GoBox.EvalRelayExpression(f.Cond)
 				return err
+			}
+			return nil
+		}(),
+	}.Filter()
+
+	return err
+}
+
+type FormUser struct {
+	//State bool   `json:"status"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	CurrentPassword string `json:"current_password"`
+	Password        string `json:"password"`
+}
+
+func (f FormUser) Validate() error {
+
+	err := validation.Errors{
+		"name": func() error {
+			err := validation.Validate(f.Name, validation.Required, validation.Min(4))
+			if err != nil {
+				return err
+			}
+			return nil
+		}(),
+		"email": func() error {
+			err := validation.Validate(f.Email, validation.Required, is.Email)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}(),
+		"password": func() error {
+			err := validation.Validate(f.Password, validation.Min(5))
+			if err != nil {
+				return err
+			}
+			return nil
+		}(),
+		"current_password": func() error {
+			err := validation.Validate(f.CurrentPassword, validation.Min(5))
+			if err != nil {
+				return err
+			}
+			ok := models.UserAuth(f.Email, f.CurrentPassword)
+			if !ok {
+				return errors.New("Invalid password!")
 			}
 			return nil
 		}(),
@@ -415,82 +465,96 @@ type ServiceUser struct {
 }
 
 func (c *ServiceUser) Get() {
-	c.Abort("500") // ! BLOCKED
 
-}
-
-func (c *ServiceUser) ChangeUser() {
-	c.Abort("500") // ! BLOCKED
-
-}
-
-func (c *ServiceUser) CreateUser() {
-	c.Abort("500") // ! BLOCKED
-	// models.NewUser(name, email, password, isAdmin)
-
-	// !TODO: add isAdmin check but allow users to change their own password, email and username
-
-	cuser := GetUserInfo(c.Ctx)
-
-	if cuser.Email == "" { // check again just for safty
+	userID, _ := c.GetSession("user/id").(int64)
+	user, err := models.GetUserByID(userID)
+	var res JSONResp
+	if err != nil || user.ID < 1 {
 		c.Abort("500")
 	}
-
-	reqs := models.User{}
-	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
-
-	if err != nil {
-		c.Abort("500")
-	}
-
-	verr := reqs.Validate()
-
-	if verr != nil {
-
-		res := JSONResp{
-			Data: map[string]interface{}{},
-			Meta: map[string]interface{}{
-				"status": 500,
-				"errors": verr,
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-		return
-	}
-
-	tuser := models.User{}
-	models.DB.One("Email", reqs.Email, &tuser)
-
-	// Check permission
-
-	if !cuser.IsAdmin && reqs.Email != cuser.Email {
-		c.Abort("403")
-	}
-
-	serr := reqs.Save()
-
-	if serr != nil {
-
-		res := JSONResp{
-			Data: map[string]interface{}{},
-			Meta: map[string]interface{}{
-				"status": 500,
-				"errors": serr,
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-		return
-	}
-	res := JSONResp{
-		Data: reqs,
+	user.PwHash = ""
+	res = JSONResp{
+		Data: user,
 		Meta: map[string]interface{}{
-			"status": 200,
+			"status":   200,
+			"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
 		},
 	}
 	c.Data["json"] = res
 	c.ServeJSON()
+
+}
+
+func (c *ServiceUser) Post() {
+
+	var res JSONResp
+
+	csrfErr := CSRF.ValidateToken(fmt.Sprintf("svc/user"), c.GetString("__csrf__"), c.Ctx)
+
+	if csrfErr != nil {
+		c.Abort("500")
+	}
+
+	userID, _ := c.GetSession("user/id").(int64)
+	user, err := models.GetUserByID(userID)
+
+	if err != nil || user.ID < 1 {
+		c.Abort("500")
+	}
+
+	reqs := FormUser{}
+	err = json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
+
+	if err != nil || user.ID < 1 {
+		c.Abort("500")
+	}
+
+	err = reqs.Validate()
+
+	if err != nil {
+		res = JSONResp{
+			Data: reqs,
+			Meta: map[string]interface{}{
+				"status":   500,
+				"errors":   err,
+				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
+			},
+		}
+		c.Data["json"] = res
+		c.ServeJSON()
+	}
+
+	user.Name = reqs.Name
+	user.Email = reqs.Email
+
+	if reqs.Password != "" {
+		user.Password = reqs.Password
+	}
+
+	err = user.Save()
+	reqs.Password = ""
+
+	if err != nil {
+		res = JSONResp{
+			Data: reqs,
+			Meta: map[string]interface{}{
+				"status":   500,
+				"error":    err,
+				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
+			},
+		}
+	} else {
+
+		res = JSONResp{
+			Data: user,
+			Meta: map[string]interface{}{
+				"status":   200,
+				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
+			},
+		}
+	}
+
+	c.Data["json"] = res
 }
 
 type ServiceSys struct {

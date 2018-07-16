@@ -297,6 +297,59 @@
 		{{end}}
     </div>
 
+	<div class="row">
+	
+		<div class="col-md-12">
+  				<div class="col-md-12">
+  					<div class="content-box-large">
+		  				<div class="panel-heading">
+							<div class="panel-title">Account settings</div>
+							
+							<!--div class="panel-options" style="display:none;">
+								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
+								<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
+							</div-->
+						</div>
+		  				<div class="panel-body">
+							<form class="form-horizontal" role="form" id="svc-user-form" data-frmdest="/svc/user" data-frmdata="">
+							  <div class="form-group">
+							    <label for="name" class="col-sm-2 control-label">Name</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" name="name" placeholder="Username">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="email" class="col-sm-2 control-label">Email</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" name="email" placeholder="Email">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="current_password" class="col-sm-2 control-label">Current Password</label>
+							    <div class="col-sm-10">
+							      <input type="password" class="form-control" name="current_password" placeholder="Current password">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="password" class="col-sm-2 control-label">New Password</label>
+							    <div class="col-sm-10">
+							      <input type="password" class="form-control" name="password" placeholder="Password">
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="submit" class="btn btn-primary">Save</button>
+								  <input type="hidden" name="__csrf__" value="">
+							    </div>
+							  </div>
+							</form>
+		  				</div>
+		  			</div>
+  				</div>
+		</div>
+	</div>
+	
+	
     <footer>
          <div class="container">
          
@@ -518,6 +571,7 @@
 			{{if .relay_l2}}
 			libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
 			{{end}}
+			libUX.form.ajaxFormLoad($("#svc-user-form"));
 		}
 		
 		$(document).ready(function(){
@@ -625,6 +679,19 @@
 				
 				libUX.form.ajaxFormSubmit($(this), "/svc/relay?target=l2", "POST", function(){
 					$.jGrowl("Saved relay data", { 
+						life: 5000, 
+						closerTemplate: "<div>[ close all ]</div>",
+						closeTemplate: "×" 
+					});
+				});
+				
+			});
+			$("#svc-user-form").on("submit", function(e){
+				e.preventDefault();
+				//var fdata = JSON.stringify(getFormJSON($(e.target)));
+				
+				libUX.form.ajaxFormSubmit($(this), "/svc/user", "POST", function(){
+					$.jGrowl("Saved account settings", { 
 						life: 5000, 
 						closerTemplate: "<div>[ close all ]</div>",
 						closeTemplate: "×" 

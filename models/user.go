@@ -67,6 +67,12 @@ func GetUserByEmail(email string) (User, error) {
 	return u, err
 }
 
+func GetUserByID(id int64) (User, error) {
+	u := User{}
+	err := DB.One("ID", id, &u)
+	return u, err
+}
+
 func NewUser(name string, email string, password string, isAdmin bool) error {
 	u := User{}
 	u.IsAdmin = isAdmin

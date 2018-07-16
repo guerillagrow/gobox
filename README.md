@@ -284,7 +284,6 @@ Big thanks to the developers of gobot.io! They made it so muche easier for me. C
 	See: http://www.sparkyswidgets.com/product/miniph/
 		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage
 * Maybe add webcam monitoring functionality
-* Add csrf/xsrf protection !IMPORTANT
 * Clean up code base. Make it more idiomatic.
 * Maybe replace Beego with gin or echo which are more idiomatic go.
 * Extend stat results with the last 3 stored sensor measurements in web service (ServiceSensors{})

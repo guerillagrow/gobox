@@ -161,15 +161,13 @@ var libUX = {
 	        var paramStr = '';
 	        paramsList[param] = val;
 	        
-	        if(Object.keys(paramsList).length >= 1){
-	            
+	        if(Object.keys(paramsList).length >= 1){	            
 	            var i = 0;
 	            
 	            $.each(paramsList, function(k, v){
 	                paramStr = paramStr  + (i > 0 ? '&' : '') + encodeURIComponent(k) + '=' + encodeURIComponent(v);
 	               i++;
-	            });
-	        
+	            });	        
 	        }
 	        
 	        var newUrl = url.substr(0, url.indexOf('?')) + (paramStr != '' ? '?' + paramStr : '');
@@ -188,4 +186,70 @@ var libUX = {
 			err_submit: "Couldn't submit form! Error on webservice side."
 		}
 	}
+};
+
+
+String.prototype.replaceAll = function (find, replace) {
+    var str = this;
+    return str.replace(new RegExp(find, 'g'), replace);
+};
+Array.prototype.count = function () {
+	for (var i = 0; i < this.length; i++) {
+	   return this.length;
+	}
+};
+
+Array.prototype.size = function () {
+	for (var i = 0; i < this.length; i++) {
+	   return this.length;
+	}
+};
+
+
+// Some common format strings
+dateFormat.masks = {
+	"default":      "ddd mmm dd yyyy HH:MM:ss",
+	shortDate:      "m/d/yy",
+	mediumDate:     "mmm d, yyyy",
+	longDate:       "mmmm d, yyyy",
+	fullDate:       "dddd, mmmm d, yyyy",
+	shortTime:      "h:MM TT",
+	mediumTime:     "h:MM:ss TT",
+	longTime:       "h:MM:ss TT Z",
+	isoDate:        "yyyy-mm-dd",
+	isoTime:        "HH:MM:ss",
+	isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
+	isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
+};
+
+// Internationalization strings
+dateFormat.i18n = {
+	dayNames: [
+		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+		"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+	],
+	monthNames: [
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+	]
+};
+
+// PROTOTYPES
+Date.prototype.format = function (mask, utc) {
+	return dateFormat(this, mask, utc);
+};
+Date.prototype.daysInMonth = function(month, year) {
+    var month = month || this.getMonth() + 1;
+    var year = year || this.getFullYear();
+    var dd = new Date(year, month, 0);
+    return dd.getDate();
+}
+Date.prototype.toJson = function () {
+    return "\/Date(" + +new Date(Date.UTC(
+        this.getFullYear(),
+        this.getMonth(),
+        this.getDate(),
+        this.getHours(),
+        this.getMinutes()
+    )) + ")\/";
 };
