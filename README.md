@@ -3,7 +3,7 @@ GoBox - Growbox automation
 
 
 GoBox is a growbox automation app for Raspberry Pi. It allows you to connect two
-DHT11 (Temperature & Humidity) sensors and 2 relays (one for light and one for air).
+DHT11/DHT22 (Temperature & Humidity) sensors and 2 relays (one for light and one for air).
 You can adjust the relay on/off times via web interface and also see the latest
 sensor data. GoBox has zero dependencies neither python, apache or mysql are required. Just push the latest GoBox release on your Pi and you're ready to go.
 
@@ -37,7 +37,8 @@ NOTE: I'm using GoBox in production but it's still considered beta till we reach
 * Logging of temperature and humidity
 
 
-![GoBOx screenshot](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_screen.png)
+![GoBOx screenshot metrics](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_screen_001.png)
+![GoBOx screenshot relay settings](https://raw.githubusercontent.com/guerillagrow/gobox/master/gobox_screen_002.png)
 
 
 ## 2.) System requirements

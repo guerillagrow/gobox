@@ -309,7 +309,10 @@ func (box *Box) GetEvalEnvData() map[string]interface{} {
 	parameters := make(map[string]interface{})
 
 	parameters["tnow"] = arrow.Now().CFormat("%Y-%m-%d %H:%M:%S")
+	parameters["tdate"] = arrow.Now().CFormat("%Y-%m-%d")
 	parameters["toclock"] = arrow.Now().CFormat("%H:%M")
+	parameters["tweekday"] = arrow.Now().CFormat("%A")
+	parameters["tmonth"] = arrow.Now().CFormat("%B")
 
 	parameters["l1_ton"], _ = BoxConfig.GetString("devices/relay_l1/settings/on")
 	parameters["l1_toff"], _ = BoxConfig.GetString("devices/relay_l1/settings/off")
