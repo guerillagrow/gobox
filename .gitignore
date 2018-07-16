@@ -1,5 +1,7 @@
 dev/
+tmp/*
 release_rpi.sh
 build_release.sh
 vendorify.sh
 release/
+run.sh

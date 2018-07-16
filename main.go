@@ -48,6 +48,8 @@ func main() {
 
 	models.GoBox.Start()
 
+	beego.BConfig.WebConfig.Session.SessionOn = true
+	beego.BConfig.WebConfig.Session.SessionAutoSetCookie = true
 	beego.BConfig.MaxMemory = 1 << 26
 	//beego.BConfig.CopyRequestBody = true // required for json request bodies!
 

@@ -60,6 +60,14 @@ var libUX = {
 							}*/
 						});
 					}
+					if(typeof opt.meta == "object" && typeof opt.meta.__csrf__ == "string"){
+						if (elem.find('input[name="__csrf__"][type="hidden"]').size() >= 1) {
+							elem.find('input[name="__csrf__"][type="hidden"]').first().val(opt.meta.__csrf__);
+						}else{
+							var newEl = elem.append('<input type="hidden" name="__csrf__">');
+							newEl.val(opt.meta.__csrf__)
+						}
+					}
 				},
 				error: function(opt){
 					// !DUMMY
@@ -80,11 +88,17 @@ var libUX = {
 					//libUX.message.show("Saved form!");
 				};
 			}
+			var data = me.getData(elem);
+			if (typeof data == "object" && typeof data.__csrf__ == "string") {
+				url = libUX.url.addParam(url, "__csrf__", data.__csrf__);
+				delete data["__csrf__"];
+			}
+			
 			$.ajax({
 				url: url, 
-				data: JSON.stringify(me.getData(elem)),
+				data: JSON.stringify(data),
 				method: "POST",
-    			dataType: "json",
+    				dataType: "json",
 				success: function(opt){
 					elem.find(".form-error").remove();
 					if(typeof opt.meta.errors == "object" && Object.keys(opt.meta.errors).length >= 1) {
@@ -105,6 +119,65 @@ var libUX = {
 			});
 		}
 	},
+	
+	url: {
+		
+	    params: function(url){
+	
+	        if(typeof url === 'string'){
+	        
+	            if(url.indexOf('?') > 0){
+	                
+	                var cutUrl = url.substr(url.indexOf('?') + 1);
+	                var paramsRaw = cutUrl.split('&');
+	                var paramList = {};
+	                
+	                
+	                $.each(paramsRaw, function(k, v){
+	                    
+	                    var tmp = v.split('=');
+	                    
+	                    if(tmp[0] && tmp[1]){
+	                        paramList[tmp[0]] = tmp[1];
+	                    }else if(tmp[0]){
+	                        paramList[tmp[0]] = '';
+	                    }
+	                    
+	                });
+	                
+	                return paramList;
+	                
+	            }
+	            
+	        }
+	        
+	        return {};
+	    },
+		
+	    addParam: function(url, param, val){
+	        
+			var me = this;
+	        var paramsList = me.params(url);
+	        var paramStr = '';
+	        paramsList[param] = val;
+	        
+	        if(Object.keys(paramsList).length >= 1){
+	            
+	            var i = 0;
+	            
+	            $.each(paramsList, function(k, v){
+	                paramStr = paramStr  + (i > 0 ? '&' : '') + encodeURIComponent(k) + '=' + encodeURIComponent(v);
+	               i++;
+	            });
+	        
+	        }
+	        
+	        var newUrl = url.substr(0, url.indexOf('?')) + (paramStr != '' ? '?' + paramStr : '');
+			return newUrl;
+	        
+	    }
+	},
+	
 	message: {
 		show: function(msg, opt){
 			

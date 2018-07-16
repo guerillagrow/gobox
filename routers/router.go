@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"log"
+
 	"github.com/guerillagrow/gobox/controllers"
 	"github.com/guerillagrow/gobox/models"
 
@@ -10,6 +12,9 @@ import (
 )
 
 func CustomAuthFilter(ctx *context.Context) {
+
+	// !DEBUG new session id on every request
+	log.Println("Router.CustomAuthFilter() SID:", ctx.Input.CruSession.SessionID())
 	a := &auth.BasicAuth{Secrets: models.UserAuth, Realm: "GoBox"}
 	email := a.CheckAuth(ctx.Request)
 	if email == "" {

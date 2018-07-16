@@ -26,7 +26,7 @@
                 "condition": "",
                 "force": 0,
                 "off": "20:00",
-                "on": "09:00"
+                "on": "09:01"
             },
             "status": true
         },
@@ -43,26 +43,6 @@
     },
     "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
     "stats": {
-        "10m": {
-            "min_group_size": 0,
-            "status": true
-        },
-        "1h": {
-            "min_group_size": 0,
-            "status": true
-        },
-        "1m": {
-            "min_group_size": 0,
-            "status": true
-        },
-        "24h": {
-            "min_group_size": 0,
-            "status": false
-        },
-        "30m": {
-            "min_group_size": 0,
-            "status": false
-        },
         "delete_older_than": 72
     }
 }

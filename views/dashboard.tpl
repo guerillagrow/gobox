@@ -216,6 +216,7 @@
 							  <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
 							      <button type="submit" class="btn btn-primary">Save</button>
+								  <input type="hidden" name="__csrf__" value="">
 							    </div>
 							  </div>
 							</form>
@@ -282,6 +283,7 @@
 							  <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
 							      <button type="submit" class="btn btn-primary">Save</button>
+								  <input type="hidden" name="__csrf__" value="">
 							    </div>
 							  </div>
 							</form>

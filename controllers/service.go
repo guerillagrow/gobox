@@ -111,6 +111,13 @@ func (c *ServiceRelay) Post() {
 	if relayDevice == nil {
 		c.Abort("500")
 	}
+
+	csrfErr := CSRF.ValidateToken(fmt.Sprintf("svc/relay_%s", relayName), c.GetString("__csrf__"), c.Ctx)
+
+	if csrfErr != nil {
+		c.Abort("500")
+	}
+
 	reqs := FormRelayL1{}
 	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
 
@@ -176,17 +183,11 @@ func (c *ServiceRelay) Get() {
 	relayName := c.GetString("target")
 	var relayDevice *gpio.GroveRelayDriver
 
-	if relayName != "l1" && relayName != "l2" {
-		c.Abort("500")
-	}
-
 	if relayName == "l1" {
 		relayDevice = models.GoBox.RelayL1
-	} else {
+	} else if relayName == "l2" {
 		relayDevice = models.GoBox.RelayL2
-	}
-
-	if relayDevice == nil {
+	} else {
 		c.Abort("500")
 	}
 
@@ -205,7 +206,7 @@ func (c *ServiceRelay) Get() {
 		},
 		Meta: map[string]interface{}{
 			"status":   200,
-			"__csrf__": CSRF.SetToken("svc/relay_l1", 1*time.Hour, c.Ctx),
+			"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/relay_%s", relayName), 1*time.Hour, c.Ctx),
 		},
 	}
 	c.Data["json"] = res

@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 
+	"encoding/gob"
 	"os/exec"
 	"sync"
 	"time"
@@ -41,6 +42,11 @@ var ARG_DBFile *string
 //var Cron *cron.Cron
 
 func Init() {
+
+	// Register gob encoding stuff
+	gob.Register(time.Time{})
+	//gob.Register(time.Duration{})
+
 	cfgerr := BoxConfig.LoadFile(*ARG_ConfigFile)
 
 	if cfgerr != nil {
