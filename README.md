@@ -145,15 +145,6 @@ This is really for those who have no clue how to access the Pi from windows and 
 
 ### 4.1.) Configuration
 
-<b>Note: at the moment the multi user support and user profile features are missing!
-The default login is:</b>
-```
-	user:     root@localhost    (email is used for authentication)
-	password: toor
-```
-<b style="color:red;">Please run gobox only in your trusted LAN due the fact of not yet fully implemented user management capabilities!</b>
-
-
 There are 2 Configuration files one for the web server and on for the sensor stuff
 and relay time configuration.
 
