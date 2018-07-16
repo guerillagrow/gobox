@@ -183,6 +183,32 @@ devices.relay_l1.settings.off          => Time when relay goes off, like: 20:30
    ...
 ```
 
+The relay switch condition from the config value "devices.relay_l1.settings.condition" can contain following variables:
+
+* tnow      string               =   Datetime string in format: "%Y-%m-%d %H:%M:%S"
+* tdate     string               =   Date string in format: "%Y-%m-%d"
+* toclock   string               =   Time string in format: "%H:%M"
+* tweekday  string               =   Weekday string in format: "%A" (Monday, ...)
+* l1_ton    string               =   Relay L1 Time-On in format: "%H:%M"
+* l1_toff   string               =   Relay L1 Time-Off in format: "%H:%M"
+* l1_force  int64                =   Force relay L1 on/off, allowed values: 0: None; 1: On; -1: Off
+* l1_last_switch_day   string    =   Date string of last time the relay L1 was switched in format: "%Y-%m-%d"
+* l1_last_switch_time  string    =   Time string of the last time the relay L1 was switched in format: "%H:%M"
+* l2_ton    string               =   Relay L2 Time-On in format: "%H:%M"
+* l2_toff   string               =   Relay L2 Time-Off in format: "%H:%M"
+* l2_force  int64                =   Force relay L2 on/off, allowed values: 0: None; 1: On; -1: Off
+* l2_last_switch_day   string    =   Date string of last time the relay L2 was switched in format: "%Y-%m-%d"
+* l2_last_switch_time  string    =   Time string of the last time the relay L2 was switched in format: "%H:%M"
+* t1_temp   float64              =   Temperature value of T1 sensor
+* t1_hum    float64              =   Humidity value of T1 sensor
+* t2_temp   float64              =   Temperature value of T2 sensor
+* t2_hum    float64              =   Humidity value of T2 sensor
+* d1_temp   float64              =   Temperature value of D1 sensor
+* d1_hum    float64              =   Humidity value of D1 sensor
+* d2_temp   float64              =   Temperature value of D2 sensor
+* d2_hum    float64              =   Humidity value of D2 sensor
+* d2_hum    float64              =   Humidity value of D2 sensor
+
 The `sensd` daemon executable reads the sensor data according to your raspberrypi.json
 config file. You can use any kind of script or process to read the sensor data maybe a
 custom python script or similar. You just have to enter it in the config file as "sensd_bin".
@@ -254,41 +280,16 @@ Big thanks to the developers of gobot.io! They made it so muche easier for me. C
 ## 6.) TODOs
 
 * Add tests
-* Add ability to connect also 2 DHT22 sensors (d1; d2)
-* Add ability for measure PH of water if we grow in hydro culture
+* Maybe add ability for measure PH of water if we grow in hydro culture
 	See: http://www.sparkyswidgets.com/product/miniph/
 		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage
 * Maybe add webcam monitoring functionality
-* Add csrf/xsrf protection
+* Add csrf/xsrf protection !IMPORTANT
 * Clean up code base. Make it more idiomatic.
 * Maybe replace Beego with gin or echo which are more idiomatic go.
 * Extend stat results with the last 3 stored sensor measurements in web service (ServiceSensors{})
 * Extend documentation about raspberrypi.json config file
-* Add intelligent relay switch by condition expression evaluation of the config file
-	Like:	
-	
-	```
-	($temp_t1 >= 30 && $ton <= $tcurrent)
-	// Or:
-	($temp_t1 >= 30 && $temp_t2 >= 30 && $relay_l1_status == true)
-	
-	// Available variables inside an expression:
-	// $t1_temp         = Temperature value of sensor T1 DHT11
-	// $t2_temp         = Temperature value of sensor T2 DHT11
-	// $t1_hum          = Humidity value of sensor T1 DHT11
-	// $t2_hum          = Humidity value of sensor T2 DHT11
-	// $d1_hum          = Humidity value of sensor D1 DHT22
-	// $d2_hum          = Humidity value of sensor D2 DHT22
-	// $d1_temp         = Temperature value of sensor D1 DHT22
-	// $d2_temp         = Temperature value of sensor D2 DHT22
-	// $tnow            = Current time (YYYY-MM-DD HH:ii:ss)
-	// $toclock         = Current time (HH:ii)
-	// $ton             = Relay time on setting (HH:ii)
-	// $toff            = Relay time off setting (HH:ii)
-	// $tlastswitch     = Last time the relay was toggled / switched
-	// $relay_l1_status = Current status of relay L1
-	// $relay_l2_status = Current status of relay L2
-	```
+* Add documentation about relay switch conditions and the available variables
 
 
 ----------------------------------------------------------------------------------

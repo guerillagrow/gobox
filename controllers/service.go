@@ -526,7 +526,6 @@ func (c *ServiceSys) GetPiStats() {
 }
 
 func (c *ServiceSys) GetTime() {
-	c.Abort("500") // ! BLOCKED
 	res := JSONResp{
 		Data: map[string]interface{}{
 			"t0": time.Now().Unix(),
