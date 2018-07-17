@@ -6,9 +6,9 @@ import (
 	"github.com/guerillagrow/gobox/controllers"
 	"github.com/guerillagrow/gobox/models"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/context"
-	"github.com/astaxie/beego/plugins/auth"
+	"github.com/guerillagrow/beego"
+	"github.com/guerillagrow/beego/context"
+	"github.com/guerillagrow/beego/plugins/auth"
 )
 
 func CustomAuthFilter(ctx *context.Context) {

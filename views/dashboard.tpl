@@ -566,12 +566,18 @@
 			});
 			{{end}}
 			{{if .relay_l1}}
-			libUX.form.ajaxFormLoad($("#svc-relay-l1-form"));
+			//setTimeout(function(){
+				libUX.form.ajaxFormLoad($("#svc-relay-l1-form"));
+			//}, 1000);
 			{{end}}
 			{{if .relay_l2}}
-			libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
+			//setTimeout(function(){
+				libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
+			//}, 2000);
 			{{end}}
-			libUX.form.ajaxFormLoad($("#svc-user-form"));
+			//setTimeout(function(){
+				libUX.form.ajaxFormLoad($("#svc-user-form"));
+			//}, 3000);
 		}
 		
 		$(document).ready(function(){

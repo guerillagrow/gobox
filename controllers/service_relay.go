@@ -13,7 +13,7 @@ import (
 
 	"time"
 
-	"github.com/astaxie/beego"
+	"github.com/guerillagrow/beego"
 	"gobot.io/x/gobot/drivers/gpio"
 )
 
@@ -133,9 +133,9 @@ func (c *ServiceRelay) Get() {
 	relayName := c.GetString("target")
 	var relayDevice *gpio.GroveRelayDriver
 
-	if relayName == "l1" {
+	if relayName == "l1" && models.GoBox.RelayL1 != nil {
 		relayDevice = models.GoBox.RelayL1
-	} else if relayName == "l2" {
+	} else if relayName == "l2" && models.GoBox.RelayL2 != nil {
 		relayDevice = models.GoBox.RelayL2
 	} else {
 		c.Abort("500")

@@ -14,10 +14,10 @@ import (
 
 	"regexp"
 
-	"github.com/astaxie/beego"
 	arrow "github.com/bmuller/arrow/lib"
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/guerillagrow/beego"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )

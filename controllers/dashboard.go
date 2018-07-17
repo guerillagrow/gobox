@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
+	"github.com/guerillagrow/beego"
 	"github.com/guerillagrow/gobox/models"
 )
 

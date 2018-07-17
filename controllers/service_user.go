@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/astaxie/beego"
+	"github.com/guerillagrow/beego"
 	"github.com/guerillagrow/gobox/models"
 )
 
