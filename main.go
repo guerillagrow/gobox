@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	_ "net/http/pprof" // !DEBUG
@@ -15,8 +16,9 @@ import (
 	_ "github.com/guerillagrow/gobox/routers"
 
 	"github.com/guerillagrow/beego"
-	"github.com/guerillagrow/beego/session"
 )
+
+var VERSION string
 
 func main() {
 
@@ -26,7 +28,14 @@ func main() {
 	models.ARG_ConfigFile = flag.String("c", "./conf/raspberrypi.json", "Config file")
 	models.ARG_DBFile = flag.String("d", "./conf/main.db", "Database file")
 	models.ARG_Debug = flag.Bool("debug", false, "Debug mode")
+
+	ARG_VERSION := flag.Bool("version", false, "Show version")
 	flag.Parse()
+
+	if *ARG_VERSION {
+		fmt.Println(VERSION)
+		return
+	}
 
 	if *models.ARG_Debug == true {
 		go func() {
