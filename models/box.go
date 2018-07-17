@@ -45,6 +45,7 @@ func Init() {
 
 	// Register gob encoding stuff
 	gob.Register(time.Time{})
+	gob.Register(User{})
 	//gob.Register(time.Duration{})
 
 	cfgerr := BoxConfig.LoadFile(*ARG_ConfigFile)

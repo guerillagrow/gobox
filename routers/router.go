@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"log"
+	//"log"
 
 	"github.com/guerillagrow/gobox/controllers"
 	"github.com/guerillagrow/gobox/models"
@@ -14,27 +14,39 @@ import (
 func CustomAuthFilter(ctx *context.Context) {
 
 	// !DEBUG new session id on every request
-	log.Println("Router.CustomAuthFilter() SID:", ctx.Input.CruSession.SessionID())
-	a := &auth.BasicAuth{Secrets: models.UserAuth, Realm: "GoBox"}
-	email := a.CheckAuth(ctx.Request)
-	if email == "" {
-		a.RequireAuth(ctx.ResponseWriter, ctx.Request)
-	}
 
-	_, iok := ctx.Input.Session("user/email").(string)
-	if !iok {
-		user, aerr := models.GetUserByEmail(email)
-		if aerr != nil {
+	userObj, ok := ctx.Input.Session("user").(models.User)
+	//log.Println("Router.CustomAuthFilter() SID:", ctx.Input.CruSession.SessionID(), "user:", userObj)
+	if userObj.ID < 1 || !ok {
+		a := &auth.BasicAuth{Secrets: models.UserAuth, Realm: "GoBox"}
+		email := a.CheckAuth(ctx.Request)
+		if email == "" {
 			a.RequireAuth(ctx.ResponseWriter, ctx.Request)
+			return
 		}
-		ctx.Input.CruSession.Set("user/id", user.ID)
-		ctx.Input.CruSession.Set("user/name", user.Name)
-		ctx.Input.CruSession.Set("user/email", user.Email)
-		ctx.Input.CruSession.Set("user/isadmin", user.IsAdmin)
 
-		//ctx.Input.CruSession.SessionRelease()
+		user, _ := models.GetUserByEmail(email)
+
+		ctx.Input.CruSession.Set("user", user)
+
+		ctx.Input.CruSession.Set("user/id", user.ID)
+		//log.Println("Router.CustomAuthFilter() SERR #1:", serr)
+		ctx.Input.CruSession.Set("user/name", user.Name)
+		//log.Println("Router.CustomAuthFilter() SERR #2:", serr)
+		ctx.Input.CruSession.Set("user/email", user.Email)
+		//log.Println("Router.CustomAuthFilter() SERR #3:", serr)
+		ctx.Input.CruSession.Set("user/isadmin", user.IsAdmin)
+		//log.Println("Router.CustomAuthFilter() SERR #4:", serr)
+
 	}
 
+}
+
+func CustomCSRFFilter(ctx *context.Context) {
+	if ctx.Input.IsPost() || ctx.Input.IsPut() {
+		//csrfToken := ctx.Input.Param("__csrf__")
+		// !TODO???
+	}
 }
 
 func init() {

@@ -15,7 +15,7 @@
             "settings": {
                 "condition": "",
                 "force": 0,
-                "off": "20:00",
+                "off": "20:07",
                 "on": "06:00"
             },
             "status": true
@@ -24,7 +24,7 @@
             "gpio": "17",
             "settings": {
                 "condition": "",
-                "force": 0,
+                "force": 1,
                 "off": "20:00",
                 "on": "09:01"
             },

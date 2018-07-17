@@ -130,7 +130,7 @@ func (self *Storage) SetInt64(k string, v interface{}) error {
 	self.Mux.Lock()
 	defer self.Mux.Unlock()
 
-	vc, verr := tconv.T2Int64(v)
+	vc, verr := tconv.T2UInt64(v)
 	if verr != nil {
 		return verr
 	}

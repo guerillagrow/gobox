@@ -96,36 +96,38 @@ func cutOrIndentText(text string, length int, indent IndentKind) string {
 	return text
 }
 
-func fmtStr(colored bool, level LogLevel, levelFormat LevelFormat, appName string,
-	packageName string, packagePrintLength int, message string, format string) string {
+func fmtStr(colored bool, level LogLevel, options FormatOptions, appName string,
+	packageName string, message string, format string) string {
 	var colorPfx, colorSfx string
 	if colored {
 		var levelColor int
 		switch level {
 		case DebugLevel:
 			levelColor = gray
-		case WarnLevel:
+		case InfoLevel:
+			levelColor = blue
+		case NotifyLevel, WarnLevel:
 			levelColor = yellow
-		case ErrorLevel, PanicLevel:
+		case ErrorLevel, PanicLevel, FatalLevel:
 			levelColor = red
 		default:
-			levelColor = blue
+			levelColor = nocolor
 		}
 		colorPfx = "\x1b[" + strconv.Itoa(levelColor) + "m"
 		colorSfx = "\x1b[0m"
 	}
-	arg1 := time.Now().Format("2006-01-02T15:04:05.000")
+	arg1 := time.Now().Format(options.TimeFormat)
 	arg2 := appName
-	arg3 := cutOrIndentText(packageName, packagePrintLength, RightIndent)
+	arg3 := cutOrIndentText(packageName, options.PackageLength, RightIndent)
 	var lvlLen int
 	var lvlStr string
-	switch levelFormat {
-	case LevelShort:
-		lvlLen = ShortLevelLen
-		lvlStr = level.ShortStr()
+	switch options.LevelLength {
 	case LevelLong:
-		lvlLen = LongLevelLen
+		lvlLen = len([]rune(InfoLevel.LongStr()))
 		lvlStr = level.LongStr()
+	case LevelShort:
+		lvlLen = len([]rune(NotifyLevel.ShortStr()))
+		lvlStr = level.ShortStr()
 	}
 	arg4 := colorPfx + cutOrIndentText(strings.ToUpper(lvlStr), lvlLen, LeftIndent) + colorSfx
 	arg5 := message

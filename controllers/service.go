@@ -1,9 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-	//"log"
-
 	"github.com/guerillagrow/gobox/models"
 
 	//"github.com/asdine/storm/q"
@@ -12,7 +9,7 @@ import (
 	"errors"
 	"time"
 
-	"encoding/json"
+	//"encoding/json"
 	//"errors"
 
 	"regexp"
@@ -23,7 +20,6 @@ import (
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"gobot.io/x/gobot/drivers/gpio"
 )
 
 type JSONResp struct {
@@ -127,143 +123,6 @@ func (f FormUser) Validate() error {
 	}.Filter()
 
 	return err
-}
-
-type ServiceRelay struct {
-	beego.Controller
-}
-
-func (c *ServiceRelay) Prepare() {
-	c.Data["json"] = map[interface{}]interface{}{
-		"data": nil,
-	}
-
-}
-
-func (c *ServiceRelay) Post() {
-
-	/*csrfToken := c.GetString("__csrf__")
-	csrfErr := CSRF.ValidateToken("svc/relay_l1", csrfToken, c.Ctx)
-
-	if csrfErr != nil {
-		c.Abort("500")
-	}*/
-
-	relayName := c.GetString("target")
-	var relayDevice *gpio.GroveRelayDriver
-
-	if relayName != "l1" && relayName != "l2" {
-		c.Abort("500")
-	}
-
-	if relayName == "l1" {
-		relayDevice = models.GoBox.RelayL1
-	} else {
-		relayDevice = models.GoBox.RelayL2
-	}
-	if relayDevice == nil {
-		c.Abort("500")
-	}
-
-	csrfErr := CSRF.ValidateToken(fmt.Sprintf("svc/relay_%s", relayName), c.GetString("__csrf__"), c.Ctx)
-
-	if csrfErr != nil {
-		c.Abort("500")
-	}
-
-	reqs := FormRelayL1{}
-	err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
-
-	if err != nil {
-		c.Abort("500")
-	}
-
-	verr := reqs.Validate()
-
-	if verr != nil {
-
-		tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
-		tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
-
-		res := JSONResp{
-			Data: map[string]interface{}{
-				"state": relayDevice.State(),
-				"ton":   tOn,
-				"toff":  tOff,
-			},
-			Meta: map[string]interface{}{
-				"status": 500,
-				"errors": verr,
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-
-		return
-	}
-
-	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/on", relayName), reqs.TOn)
-	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/off", relayName), reqs.TOff)
-	models.BoxConfig.Set(fmt.Sprintf("devices/relay_%s/settings/condition", relayName), reqs.Cond)
-	models.BoxConfig.SetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName), reqs.Force)
-	models.BoxConfig.SaveFilePretty(models.BoxConfig.File)
-	tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
-	tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
-	force, _ := models.BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName))
-	cond, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", relayName))
-
-	res := JSONResp{
-		Data: map[string]interface{}{
-			"status": relayDevice.State(),
-			"ton":    tOn,
-			"toff":   tOff,
-			"cond":   cond,
-			"force":  force,
-		},
-		Meta: map[string]interface{}{
-			"status": 200,
-		},
-	}
-	c.Data["json"] = res
-
-	c.ServeJSON()
-
-}
-
-func (c *ServiceRelay) Get() {
-	c.StartSession()
-
-	relayName := c.GetString("target")
-	var relayDevice *gpio.GroveRelayDriver
-
-	if relayName == "l1" {
-		relayDevice = models.GoBox.RelayL1
-	} else if relayName == "l2" {
-		relayDevice = models.GoBox.RelayL2
-	} else {
-		c.Abort("500")
-	}
-
-	tOn, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/on", relayName))
-	tOff, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/off", relayName))
-	force, _ := models.BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/settings/force", relayName))
-	cond, _ := models.BoxConfig.GetString(fmt.Sprintf("devices/relay_%s/settings/condition", relayName))
-
-	res := JSONResp{
-		Data: map[string]interface{}{
-			"state": relayDevice.State(),
-			"ton":   tOn,
-			"toff":  tOff,
-			"force": force,
-			"cond":  cond,
-		},
-		Meta: map[string]interface{}{
-			"status":   200,
-			"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/relay_%s", relayName), 1*time.Hour, c.Ctx),
-		},
-	}
-	c.Data["json"] = res
-	c.ServeJSON()
 }
 
 // !TODO: use SensorsParams in GetTemp() & GetHumidity()
@@ -461,128 +320,6 @@ func (c *ServiceSensors) GetHumidity() {
 	c.ServeJSON()
 	return
 
-}
-
-type ServiceUser struct {
-	beego.Controller
-}
-
-func (c *ServiceUser) Get() {
-
-	userID, _ := c.GetSession("user/id").(int64)
-	user, err := models.GetUserByID(userID)
-	var res JSONResp
-	if err != nil || user.ID < 1 {
-		res = JSONResp{
-			Data: nil,
-			Meta: map[string]interface{}{
-				"status":   500,
-				"errors":   err,
-				"userID":   user.ID,
-				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-	}
-	user.PwHash = ""
-	res = JSONResp{
-		Data: user,
-		Meta: map[string]interface{}{
-			"status":   200,
-			"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-		},
-	}
-	c.Data["json"] = res
-	c.ServeJSON()
-
-}
-
-func (c *ServiceUser) Post() {
-
-	var res JSONResp
-
-	csrfErr := CSRF.ValidateToken(fmt.Sprintf("svc/user"), c.GetString("__csrf__"), c.Ctx)
-
-	if csrfErr != nil {
-		c.Abort("500")
-	}
-
-	userID, _ := c.GetSession("user/id").(int64)
-	user, err := models.GetUserByID(userID)
-
-	if err != nil || user.ID < 1 {
-		res = JSONResp{
-			Data: nil,
-			Meta: map[string]interface{}{
-				"status":   500,
-				"errors":   err,
-				"userID":   user.ID,
-				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-		return
-	}
-
-	reqs := FormUser{}
-	err = json.Unmarshal(c.Ctx.Input.RequestBody, &reqs)
-
-	if err != nil || user.ID < 1 {
-		c.Abort("500")
-	}
-
-	err = reqs.Validate()
-	fmt.Println("svc/user validate:", err)
-
-	if err != nil {
-		res = JSONResp{
-			Data: reqs,
-			Meta: map[string]interface{}{
-				"status":   500,
-				"errors":   err,
-				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-			},
-		}
-		c.Data["json"] = res
-		c.ServeJSON()
-		return
-	}
-
-	user.Name = reqs.Name
-	user.Email = reqs.Email
-
-	if reqs.Password != "" {
-		user.Password = reqs.Password
-	}
-
-	err = user.Save()
-	reqs.Password = ""
-	fmt.Println("svc/user saved user:", user.Email)
-
-	if err != nil {
-		res = JSONResp{
-			Data: reqs,
-			Meta: map[string]interface{}{
-				"status":   500,
-				"error":    err,
-				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-			},
-		}
-	} else {
-
-		res = JSONResp{
-			Data: user,
-			Meta: map[string]interface{}{
-				"status":   200,
-				"__csrf__": CSRF.SetToken(fmt.Sprintf("svc/user"), 1*time.Hour, c.Ctx),
-			},
-		}
-	}
-
-	c.Data["json"] = res
-	c.ServeJSON()
 }
 
 type ServiceSys struct {

@@ -265,12 +265,14 @@ Whats comming next? Well I think of better graphs and query options.
 So in the next release I think we will get much better performance for the web forntend loading and graph stuff.
 There also might come a userfriendly command line setup to make the installation process easier!
 
+NOTE: Please for now only use in-memoy sessions and no file-based sessions! 
 
 Big thanks to the developers of gobot.io! They made it so muche easier for me. Check it out at: https://gobot.io/
 
 ## 6.) TODOs
 
 * Add tests
+* Fix broken beego file based session store. Build custom store using gorilla/sessions package
 * Maybe add ability for measure PH of water if we grow in hydro culture
 	See: http://www.sparkyswidgets.com/product/miniph/
 		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage

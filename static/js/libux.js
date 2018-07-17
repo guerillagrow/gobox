@@ -110,6 +110,10 @@ var libUX = {
 					} else if (typeof clb === "function" && opt.meta.status == 200){
 						clb(opt)
 					}
+				
+					if(typeof opt.meta =="object" && typeof opt.meta.__csrf__ == "string") {
+						elem.find('input[type="hidden"][name="__csrf__"]').val(opt.meta.__csrf__);
+					}
 				},
 				error: function(opt){
 					elem.find(".form-error").remove();
@@ -205,12 +209,6 @@ String.prototype.replaceAll = function (find, replace) {
     return str.replace(new RegExp(find, 'g'), replace);
 };
 Array.prototype.count = function () {
-	for (var i = 0; i < this.length; i++) {
-	   return this.length;
-	}
-};
-
-Array.prototype.size = function () {
 	for (var i = 0; i < this.length; i++) {
 	   return this.length;
 	}

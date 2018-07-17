@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -19,6 +20,7 @@ const (
 	PanicLevel
 	ErrorLevel
 	WarnLevel
+	NotifyLevel
 	InfoLevel
 	DebugLevel
 )
@@ -33,16 +35,18 @@ func (v LogLevel) String() string {
 		return "Error"
 	case WarnLevel:
 		return "Warning"
+	case NotifyLevel:
+		return "Notice"
 	case InfoLevel:
 		return "Information"
 	case DebugLevel:
 		return "Debug"
 	default:
-		return "<undefined>"
+		return "<undef>"
 	}
 }
 
-func (v *LogLevel) LongStr() string {
+func (v LogLevel) LongStr() string {
 	return v.String()
 }
 
@@ -56,48 +60,62 @@ func (v LogLevel) ShortStr() string {
 		return "Error"
 	case WarnLevel:
 		return "Warn"
+	case NotifyLevel:
+		return "Notice"
 	case InfoLevel:
 		return "Info"
 	case DebugLevel:
 		return "Debug"
 	default:
-		return "undef"
+		return "<undef>"
 	}
 }
 
-type LevelFormat int
+type LevelLength int
 
 const (
-	LevelShort LevelFormat = iota
+	LevelShort LevelLength = iota
 	LevelLong
 )
 
-const (
-	ShortLevelLen = 5
-	LongLevelLen  = 11
-)
+type FormatOptions struct {
+	TimeFormat    string
+	PackageLength int
+	LevelLength   LevelLength
+}
+
+type Log struct {
+	log     *log.Logger
+	colored bool
+	level   LogLevel
+}
+
+func NewLog(log *log.Logger, colored bool, level LogLevel) *Log {
+	v := &Log{log: log, colored: colored, level: level}
+	return v
+}
 
 type Logger struct {
 	sync.RWMutex
-	log                *log.Logger
-	packages           []*Package
-	packagePrintLength int
-	levelFormat        LevelFormat
-	logFile            *File
-	rotateMaxSize      int64
-	rotateMaxCount     int
-	appName            string
-	enableSyslog       bool
+	logs           []*Log
+	packages       []*Package
+	options        FormatOptions
+	logFile        *File
+	rotateMaxSize  int64
+	rotateMaxCount int
+	appName        string
+	enableSyslog   bool
 }
 
 func NewLogger() *Logger {
-	log := log.New(os.Stdout, "", 0)
+	stdout := NewLog(log.New(os.Stdout, "", 0), true, DebugLevel)
+	logs := []*Log{stdout}
+	options := FormatOptions{TimeFormat: "2006-01-02T15:04:05.000", LevelLength: LevelShort, PackageLength: 8}
 	l := &Logger{
-		log:                log,
-		levelFormat:        LevelShort,
-		packagePrintLength: 8,
-		rotateMaxSize:      1024 * 1024 * 512,
-		rotateMaxCount:     3,
+		logs:           logs,
+		options:        options,
+		rotateMaxSize:  1024 * 1024 * 512,
+		rotateMaxCount: 3,
 	}
 	return l
 }
@@ -136,18 +154,6 @@ func (v *Logger) GetRotateMaxCount() int {
 	return v.rotateMaxCount
 }
 
-func (v *Logger) SetLevelFormat(levelFormat LevelFormat) {
-	v.Lock()
-	defer v.Unlock()
-	v.levelFormat = levelFormat
-}
-
-func (v *Logger) GetLevelFormat() LevelFormat {
-	v.RLock()
-	defer v.RUnlock()
-	return v.levelFormat
-}
-
 func (v *Logger) SetApplicationName(appName string) {
 	v.Lock()
 	defer v.Unlock()
@@ -172,16 +178,16 @@ func (v *Logger) GetSyslogEnabled() bool {
 	return v.enableSyslog
 }
 
-func (v *Logger) SetPackagePrintLength(packagePrintLength int) {
+func (v *Logger) SetFormatOptions(options FormatOptions) {
 	v.Lock()
 	defer v.Unlock()
-	v.packagePrintLength = packagePrintLength
+	v.options = options
 }
 
-func (v *Logger) GetPackagePrintLength() int {
+func (v *Logger) GetFormatOptions() FormatOptions {
 	v.RLock()
 	defer v.RUnlock()
-	return v.packagePrintLength
+	return v.options
 }
 
 func (v *Logger) SetLogFileName(logFilePath string) error {
@@ -205,7 +211,7 @@ func (v *Logger) GetLogFileInfo() *File {
 	return v.logFile
 }
 
-func (v *Logger) NewPackageLogger(packageName string, level LogLevel) *Package {
+func (v *Logger) NewPackageLogger(packageName string, level LogLevel) PackageLog {
 	v.Lock()
 	defer v.Unlock()
 	p := &Package{parent: v, packageName: packageName, level: level}
@@ -230,21 +236,32 @@ func (v *Logger) ChangePackageLogLevel(packageName string, level LogLevel) error
 	return nil
 }
 
+func (v *Logger) AddCustomLog(writer io.Writer, colored bool, level LogLevel) {
+	v.Lock()
+	defer v.Unlock()
+	log := NewLog(log.New(writer, "", 0), colored, level)
+	v.logs = append(v.logs, log)
+}
+
+func (v *Logger) getLogs() []*Log {
+	v.RLock()
+	defer v.RUnlock()
+	lst := []*Log{}
+	for _, item := range v.logs {
+		lst = append(lst, item)
+	}
+	return lst
+}
+
 var (
 	globalLock sync.RWMutex
 	lgr        *Logger
 )
 
-func SetLevelFormat(levelFormat LevelFormat) {
+func SetFormatOptions(format FormatOptions) {
 	globalLock.RLock()
 	defer globalLock.RUnlock()
-	lgr.SetLevelFormat(levelFormat)
-}
-
-func SetPackagePrintLength(packagePrintLength int) {
-	globalLock.RLock()
-	defer globalLock.RUnlock()
-	lgr.SetPackagePrintLength(packagePrintLength)
+	lgr.SetFormatOptions(format)
 }
 
 func SetRotateParams(rotateMaxSize int64, rotateMaxCount int) {
@@ -253,7 +270,7 @@ func SetRotateParams(rotateMaxSize int64, rotateMaxCount int) {
 	lgr.SetRotateParams(rotateMaxSize, rotateMaxCount)
 }
 
-func NewPackageLogger(module string, level LogLevel) *Package {
+func NewPackageLogger(module string, level LogLevel) PackageLog {
 	globalLock.RLock()
 	defer globalLock.RUnlock()
 	return lgr.NewPackageLogger(module, level)
@@ -283,6 +300,12 @@ func EnableSyslog(enable bool) {
 	lgr.EnableSyslog(enable)
 }
 
+func AddCustomLog(writer io.Writer, colored bool, level LogLevel) {
+	globalLock.RLock()
+	defer globalLock.RUnlock()
+	lgr.AddCustomLog(writer, colored, level)
+}
+
 func FinalizeLogger() error {
 	var err error
 	if lgr != nil {
@@ -302,7 +325,8 @@ func init() {
 	go func(logger *Logger) {
 		<-ctx.Done()
 		lg := logger.NewPackageLogger("logger", InfoLevel)
-		lg.Info("Finalizing logger, due to termination pending request")
+		options := FormatOptions{TimeFormat: "2006-01-02T15:04:05.000", LevelLength: LevelShort, PackageLength: 8}
+		lg.Info(options, "Finalizing logger, due to termination pending request")
 		logger.Close()
 		globalLock.Lock()
 		defer globalLock.Unlock()

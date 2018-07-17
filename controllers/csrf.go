@@ -30,6 +30,10 @@ func (c *CSRFManager) getTokenData(scope string, ctx *context.Context) (string, 
 
 func (c *CSRFManager) SetToken(scope string, lifetime time.Duration, ctx *context.Context) string {
 
+	/*defer func() {
+		ctx.Input.CruSession.SessionRelease(ctx.ResponseWriter.ResponseWriter)
+	}()*/
+
 	if int(lifetime) == 0 {
 		lifetime = (24 * 7) * time.Hour
 	}
@@ -37,6 +41,7 @@ func (c *CSRFManager) SetToken(scope string, lifetime time.Duration, ctx *contex
 	etoken, _ := c.getTokenData(scope, ctx)
 
 	if etoken != "" {
+		fmt.Println("CSRFManager.SetToken() -> Update token:", etoken, "; scope:", scope, "SID:", ctx.Input.CruSession.SessionID())
 		ctx.Input.CruSession.Set(fmt.Sprintf("csrf/%s/expire", scope), time.Now().Add(lifetime))
 		return etoken
 	}
@@ -47,6 +52,8 @@ func (c *CSRFManager) SetToken(scope string, lifetime time.Duration, ctx *contex
 	fmt.Println(err)
 	err = ctx.Input.CruSession.Set(fmt.Sprintf("csrf/%s/expire", scope), expire)
 	fmt.Println(err)
+	fmt.Println("CSRFManager.SetToken() -> New token:", token, "; scope:", scope, "SID:", ctx.Input.CruSession.SessionID())
+	fmt.Println("------------------------------------------------------------------------------------------------------")
 
 	return token
 }

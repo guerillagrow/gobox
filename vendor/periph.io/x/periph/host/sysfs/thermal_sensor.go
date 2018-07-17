@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"periph.io/x/periph"
-	"periph.io/x/periph/devices"
+	"periph.io/x/periph/conn/physic"
 )
 
 // ThermalSensors is all the sensors discovered on this host via sysfs.
@@ -41,9 +41,10 @@ type ThermalSensor struct {
 	name string
 	root string
 
-	mu       sync.Mutex
-	nameType string
-	f        fileIO
+	mu        sync.Mutex
+	nameType  string
+	f         fileIO
+	precision physic.Temperature
 }
 
 func (t *ThermalSensor) String() string {
@@ -79,8 +80,8 @@ func (t *ThermalSensor) Type() string {
 	return t.nameType
 }
 
-// Sense implements devices.Environmental.
-func (t *ThermalSensor) Sense(env *devices.Environment) error {
+// Sense implements physic.SenseEnv.
+func (t *ThermalSensor) Sense(e *physic.Env) error {
 	if err := t.open(); err != nil {
 		return err
 	}
@@ -98,17 +99,31 @@ func (t *ThermalSensor) Sense(env *devices.Environment) error {
 	if err != nil {
 		return fmt.Errorf("sysfs-thermal: %v", err)
 	}
-	if i < 100 {
-		i *= 1000
+	if t.precision == 0 {
+		t.precision = physic.MilliKelvin
+		if i < 100 {
+			t.precision *= 1000
+		}
 	}
-	env.Temperature = devices.Celsius(i)
+	e.Temperature = physic.Temperature(i)*t.precision + physic.ZeroCelsius
 	return nil
 }
 
-// SenseContinuous implements devices.Environmental.
-func (t *ThermalSensor) SenseContinuous(interval time.Duration) (<-chan devices.Environment, error) {
+// SenseContinuous implements physic.SenseEnv.
+func (t *ThermalSensor) SenseContinuous(interval time.Duration) (<-chan physic.Env, error) {
 	// TODO(maruel): Manually poll in a loop via time.NewTicker.
 	return nil, errors.New("sysfs-thermal: not implemented")
+}
+
+// Precision implements physic.SenseEnv.
+func (t *ThermalSensor) Precision(e *physic.Env) {
+	if t.precision == 0 {
+		dummy := physic.Env{}
+		t.Sense(&dummy)
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	e.Temperature = t.precision
 }
 
 //
@@ -178,5 +193,5 @@ func init() {
 
 var drvThermalSensor driverThermalSensor
 
-var _ devices.Environmental = &ThermalSensor{}
+var _ physic.SenseEnv = &ThermalSensor{}
 var _ fmt.Stringer = &ThermalSensor{}

@@ -4,8 +4,8 @@
 
 // Package gpio defines digital pins.
 //
-// While all GPIO implementations are expected to implement PinIO, they may
-// expose more specific functionality like PinPWM, PinDefaultPull, etc.
+// All GPIO implementations are expected to implement PinIO but the device
+// driver may accept a more specific one like PinIn or PinOut.
 package gpio
 
 import (
@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/pin"
 )
 
@@ -41,15 +42,15 @@ type Pull uint8
 
 // Acceptable pull values.
 const (
-	Float        Pull = 0 // Let the input float
-	PullDown     Pull = 1 // Apply pull-down
-	PullUp       Pull = 2 // Apply pull-up
-	PullNoChange Pull = 3 // Do not change the previous pull resistor setting or an unknown value
+	PullNoChange Pull = 0 // Do not change the previous pull resistor setting or an unknown value
+	Float        Pull = 1 // Let the input float
+	PullDown     Pull = 2 // Apply pull-down
+	PullUp       Pull = 3 // Apply pull-up
 )
 
-const pullName = "FloatPullDownPullUpPullNoChange"
+const pullName = "PullNoChangeFloatPullDownPullUp"
 
-var pullIndex = [...]uint8{0, 5, 13, 19, 31}
+var pullIndex = [...]uint8{0, 12, 17, 25, 31}
 
 func (i Pull) String() string {
 	if i >= Pull(len(pullIndex)-1) {
@@ -84,7 +85,7 @@ func (i Edge) String() string {
 
 const (
 	// DutyMax is a duty cycle of 100%.
-	DutyMax Duty = 65535
+	DutyMax Duty = 1 << 24
 	// DutyHalf is a 50% duty PWM, which boils down to a normal clock.
 	DutyHalf Duty = DutyMax / 2
 )
@@ -134,29 +135,18 @@ func ParseDuty(s string) (Duty, error) {
 	return i, nil
 }
 
-// PinPWM exposes hardware PWM.
-//
-// The driver may uses DMA controller underneath for zero CPU implementation.
-type PinPWM interface {
-	// PWM sets the PWM output on supported pins.
-	//
-	// To use as a general purpose clock, set duty to DutyHalf. Some pins may
-	// only support DutyHalf and no other value.
-	//
-	// Using 0 as period will use the optimal value as supported/preferred by the
-	// pin.
-	PWM(duty Duty, period time.Duration) error
-}
-
 // PinIn is an input GPIO pin.
 //
 // It may optionally support internal pull resistor and edge based triggering.
+//
+// A button is semantically a PinIn. So if you are looking to read from a
+// button, PinIn is the interface you are looking for.
 type PinIn interface {
 	pin.Pin
 	// In setups a pin as an input.
 	//
 	// If WaitForEdge() is planned to be called, make sure to use one of the Edge
-	// value. Otherwise, use None to not generated unneeded hardware interrupts.
+	// value. Otherwise, use NoEdge to not generated unneeded hardware interrupts.
 	//
 	// Calling In() will try to empty the accumulated edges but it cannot be 100%
 	// reliable due to the OS (linux) and its driver. It is possible that on a
@@ -175,7 +165,7 @@ type PinIn interface {
 	// occurred since the last call.
 	//
 	// Only waits for the kind of edge as specified in a previous In() call.
-	// Behavior is undefined if In() with a value other than None wasn't called
+	// Behavior is undefined if In() with a value other than NoEdge wasn't called
 	// before.
 	//
 	// Returns true if an edge was detected during or before this call. Return
@@ -194,9 +184,16 @@ type PinIn interface {
 	//
 	// Returns PullNoChange if the value cannot be read.
 	Pull() Pull
+	// DefaultPull returns the pull that is initialized on CPU/device reset. This
+	// is useful to determine if the pin is acceptable for operation with
+	// certain devices.
+	DefaultPull() Pull
 }
 
 // PinOut is an output GPIO pin.
+//
+// A LED, a buzzer, a servo, are semantically a PinOut. So if you are looking
+// to control these, PinOut is the interface you are looking for.
 type PinOut interface {
 	pin.Pin
 	// Out sets a pin as output if it wasn't already and sets the initial value.
@@ -207,15 +204,24 @@ type PinOut interface {
 	// Out() tries to empty the accumulated edges detected if the gpio was
 	// previously set as input but this is not 100% guaranteed due to the OS.
 	Out(l Level) error
+	// PWM sets the PWM output on supported pins, if the pin has hardware PWM
+	// support.
+	//
+	// To use as a general purpose clock, set duty to DutyHalf. Some pins may
+	// only support DutyHalf and no other value.
+	//
+	// Using 0 as frequency will use the optimal value as supported/preferred by
+	// the pin.
+	//
+	// To use as a servo, see https://en.wikipedia.org/wiki/Servo_control as an
+	// explanation how to calculate duty.
+	PWM(duty Duty, f physic.Frequency) error
 }
 
 // PinIO is a GPIO pin that supports both input and output. It matches both
 // interfaces PinIn and PinOut.
 //
 // A GPIO pin implementing PinIO may fail at either input or output or both.
-//
-// The GPIO pin may optionally support more interfaces, like PinPWM,
-// PinDefaultPull.
 type PinIO interface {
 	pin.Pin
 	// PinIn
@@ -223,16 +229,10 @@ type PinIO interface {
 	Read() Level
 	WaitForEdge(timeout time.Duration) bool
 	Pull() Pull
+	DefaultPull() Pull
 	// PinOut
 	Out(l Level) error
-}
-
-// PinDefaultPull is optionally implemented to return the default pull at boot
-// time. This is useful to determine if the pin is acceptable for operation
-// with certain devices.
-type PinDefaultPull interface {
-	// DefaultPull returns the pull that is initialized on CPU reset.
-	DefaultPull() Pull
+	PWM(duty Duty, f physic.Frequency) error
 }
 
 // INVALID implements PinIO and fails on all access.
@@ -246,8 +246,6 @@ var INVALID PinIO
 //
 // The purpose of the RealPin is to be able to cleanly test whether an arbitrary
 // gpio.PinIO returned by ByName is an alias for another pin, and resolve it.
-// This is needed to be able to test for other interfaces, like PinPWM,
-// PinDefaultPull, etc.
 type RealPin interface {
 	Real() PinIO // Real returns the real pin behind an Alias
 }
@@ -301,7 +299,15 @@ func (invalidPin) Pull() Pull {
 	return PullNoChange
 }
 
+func (invalidPin) DefaultPull() Pull {
+	return PullNoChange
+}
+
 func (invalidPin) Out(Level) error {
+	return errInvalidPin
+}
+
+func (invalidPin) PWM(Duty, physic.Frequency) error {
 	return errInvalidPin
 }
 

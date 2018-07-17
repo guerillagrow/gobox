@@ -10,10 +10,12 @@ import (
 	"syscall"
 
 	"github.com/guerillagrow/gobox/controllers"
+	//"github.com/guerillagrow/gobox/custom/xsession"
 	"github.com/guerillagrow/gobox/models"
 	_ "github.com/guerillagrow/gobox/routers"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/session"
 )
 
 func main() {
@@ -52,6 +54,17 @@ func main() {
 	beego.BConfig.WebConfig.Session.SessionAutoSetCookie = true
 	beego.BConfig.MaxMemory = 1 << 26
 	//beego.BConfig.CopyRequestBody = true // required for json request bodies!
+
+	sessionconf := &session.ManagerConfig{
+		CookieName:      "gobox_sess",
+		CookieLifeTime:  3600,
+		Maxlifetime:     3600,
+		Gclifetime:      3600 / 4,
+		ProviderConfig:  "./tmp",
+		EnableSetCookie: true,
+	}
+	beego.GlobalSessions, _ = session.NewManager("memory", sessionconf) // !NOTE: Beego BUG: File based sessions are not saved correctly when using ajax requests
+	go beego.GlobalSessions.GC()
 
 	beego.ErrorController(&controllers.ErrorController{})
 	beego.Run()

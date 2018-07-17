@@ -16,11 +16,12 @@
 package i2c
 
 import (
-	"fmt"
 	"io"
+	"strconv"
 
 	"periph.io/x/periph/conn"
 	"periph.io/x/periph/conn/gpio"
+	"periph.io/x/periph/conn/physic"
 )
 
 // Bus defines the interface a concrete I²C driver must implement.
@@ -31,12 +32,17 @@ import (
 // specified. Use i2cdev.Dev as an adapter to get a conn.Conn compatible
 // object.
 type Bus interface {
+	String() string
+	// Tx does a transaction at the specified device address.
+	//
+	// Write is done first, then read. One of 'w' or 'r' can be omitted for a
+	// unidirectional operation.
 	Tx(addr uint16, w, r []byte) error
 	// SetSpeed changes the bus speed, if supported.
 	//
 	// On linux due to the way the I²C sysfs driver is exposed in userland,
 	// calling this function will likely affect *all* I²C buses on the host.
-	SetSpeed(hz int64) error
+	SetSpeed(f physic.Frequency) error
 }
 
 // BusCloser is an I²C bus that can be closed.
@@ -71,7 +77,11 @@ type Dev struct {
 }
 
 func (d *Dev) String() string {
-	return fmt.Sprintf("%s(%d)", d.Bus, d.Addr)
+	s := "<nil>"
+	if d.Bus != nil {
+		s = d.Bus.String()
+	}
+	return s + "(" + strconv.Itoa(int(d.Addr)) + ")"
 }
 
 // Tx does a transaction by adding the device's address to each command.

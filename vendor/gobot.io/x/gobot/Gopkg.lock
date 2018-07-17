@@ -31,8 +31,8 @@
     ".",
     "packets"
   ]
-  revision = "aff15770515e3c57fc6109da73d42b0d46f7f483"
-  version = "v1.1.0"
+  revision = "36d01c2b4cbeb3d2a12063e4880ce30800af9560"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
@@ -151,8 +151,8 @@
 [[projects]]
   name = "github.com/veandco/go-sdl2"
   packages = ["sdl"]
-  revision = "30f30965227962032c13bd0b12a89e6a5107c768"
-  version = "v0.2"
+  revision = "271d2ec43388932fd2a80f4c2e81021734685a62"
+  version = "v0.3"
 
 [[projects]]
   branch = "master"
@@ -166,8 +166,8 @@
 [[projects]]
   name = "gocv.io/x/gocv"
   packages = ["."]
-  revision = "ab6d932219faf43e531eea89ef3496cdb67aa734"
-  version = "0.11.0"
+  revision = "0d9b22a6450a7d81761a4b763f58fb99e962ab47"
+  version = "0.14.0"
 
 [[projects]]
   branch = "master"
@@ -188,7 +188,6 @@
   revision = "8eb05f94d449fdf134ec24630ce69ada5b469c1c"
 
 [[projects]]
-  branch = "master"
   name = "periph.io/x/periph"
   packages = [
     ".",
@@ -197,18 +196,19 @@
     "conn/gpio/gpioreg",
     "conn/i2c",
     "conn/i2c/i2creg",
+    "conn/physic",
     "conn/pin",
     "conn/spi",
     "conn/spi/spireg",
-    "devices",
     "host/fs",
     "host/sysfs"
   ]
-  revision = "a8b45e63d61cc00328dfe54149cfe7abd7115a7f"
+  revision = "000523f7fa26b78f012b93221c94434ac5b18e37"
+  version = "v3.0.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c43dc994a8c7f2d4c032139478a57e90a174738d54033e5076e9705e13352dda"
+  inputs-digest = "97cff5a0c56259857493449e763e5c32f4a379d3a12f74d68a1bfa31b71f781c"
   solver-name = "gps-cdcl"
   solver-version = 1

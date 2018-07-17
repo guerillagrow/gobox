@@ -17,6 +17,7 @@ import (
 	"periph.io/x/periph"
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/host/fs"
 )
 
@@ -216,6 +217,12 @@ func (p *Pin) Pull() gpio.Pull {
 	return gpio.PullNoChange
 }
 
+// DefaultPull returns gpio.PullNoChange since gpio sysfs has no support for
+// input pull resistor.
+func (p *Pin) DefaultPull() gpio.Pull {
+	return gpio.PullNoChange
+}
+
 // Out sets a pin as output; implements gpio.PinOut.
 func (p *Pin) Out(l gpio.Level) error {
 	p.mu.Lock()
@@ -250,6 +257,11 @@ func (p *Pin) Out(l gpio.Level) error {
 		return p.wrap(err)
 	}
 	return nil
+}
+
+// PWM implements gpio.PinOut but cannot work on sysfs.
+func (p *Pin) PWM(gpio.Duty, physic.Frequency) error {
+	return p.wrap(errors.New("pwm is not supported via sysfs"))
 }
 
 //
@@ -433,7 +445,7 @@ func (d *driverGPIO) parseGPIOChip(path string) error {
 			root:   fmt.Sprintf("/sys/class/gpio/gpio%d/", i),
 		}
 		Pins[i] = p
-		if err := gpioreg.Register(p, false); err != nil {
+		if err := gpioreg.Register(p); err != nil {
 			return err
 		}
 		// If there is a CPU memory mapped gpio pin with the same number, the

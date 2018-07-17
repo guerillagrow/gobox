@@ -9,6 +9,28 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
+type PackageLog interface {
+	FormatMessage(options FormatOptions, level LogLevel, msg string, colored bool) string
+	Printf(level LogLevel, format string, args ...interface{})
+	Print(level LogLevel, args ...interface{})
+	Debugf(format string, args ...interface{})
+	Debug(args ...interface{})
+	Infof(format string, args ...interface{})
+	Info(args ...interface{})
+	Notifyf(format string, args ...interface{})
+	Notify(args ...interface{})
+	Warningf(format string, args ...interface{})
+	Warnf(format string, args ...interface{})
+	Warning(args ...interface{})
+	Warn(args ...interface{})
+	Errorf(format string, args ...interface{})
+	Error(args ...interface{})
+	Panicf(format string, args ...interface{})
+	Panic(args ...interface{})
+	Fatalf(format string, args ...interface{})
+	Fatal(args ...interface{})
+}
+
 type Package struct {
 	sync.RWMutex
 	parent      *Logger
@@ -16,6 +38,9 @@ type Package struct {
 	level       LogLevel
 	syslog      *syslog.Writer
 }
+
+// Static cast to verify that object implement interface.
+var _ PackageLog = &Package{}
 
 func (v *Package) Close() error {
 	v.Lock()
@@ -42,13 +67,13 @@ func (v *Package) GetLogLevel() LogLevel {
 	return v.level
 }
 
-func (v *Package) getSyslog(level LogLevel, levelFormat LevelFormat,
+func (v *Package) getSyslog(level LogLevel, options FormatOptions,
 	appName string) (*syslog.Writer, error) {
 	v.Lock()
 	defer v.Unlock()
 	if v.syslog == nil {
-		tag := fmtStr(false, level, levelFormat, appName,
-			v.packageName, -1, "", "%[2]s-%[3]s")
+		tag := fmtStr(false, level, options, appName,
+			v.packageName, "", "%[2]s-%[3]s")
 		sl, err := syslog.New(syslog.LOG_DEBUG, tag)
 		if err != nil {
 			err = spew.Errorf("Failed to connect to syslog: %v\n", err)
@@ -59,9 +84,10 @@ func (v *Package) getSyslog(level LogLevel, levelFormat LevelFormat,
 	return v.syslog, nil
 }
 
-func (v *Package) writeToSyslog(level LogLevel,
-	levelFormat LevelFormat, appName string, msg string) error {
-	sl, err := v.getSyslog(level, levelFormat, appName)
+func (v *Package) writeToSyslog(options FormatOptions,
+	level LogLevel, appName string, msg string) error {
+
+	sl, err := v.getSyslog(level, options, appName)
 	if err != nil {
 		return err
 	}
@@ -83,37 +109,79 @@ func (v *Package) writeToSyslog(level LogLevel,
 	}
 }
 
+type printLog func(log *Log, msg interface{})
+type getMessage func(colored bool) interface{}
+
+func printLogs(logs []*Log, level LogLevel, prnt printLog, getMsg getMessage) {
+	// Console and custom logs output
+	for _, log := range logs {
+		if log.level >= level {
+			prnt(log, getMsg(log.colored))
+		}
+	}
+}
+
+func (v *Package) FormatMessage(options FormatOptions, level LogLevel, msg string, colored bool) string {
+	appName := v.parent.GetApplicationName()
+	if appName == "" {
+		appName = os.Args[0]
+	}
+	out := fmtStr(colored, level, options, appName,
+		v.packageName, msg, "%[1]s [%[3]s] %[4]s  %[5]s")
+	return out
+}
+
 func (v *Package) print(level LogLevel, msg string) {
 	lvl := v.GetLogLevel()
 	if lvl >= level {
-		levelFormat := v.parent.GetLevelFormat()
-		packagePrintLen := v.parent.GetPackagePrintLength()
 		appName := v.parent.GetApplicationName()
 		if appName == "" {
 			appName = os.Args[0]
 		}
-		out1 := fmtStr(true, level, levelFormat, appName,
-			v.packageName, packagePrintLen, msg, "%[1]s [%[3]s] %[4]s  %[5]s")
+		logs := v.parent.getLogs()
+		options := v.parent.GetFormatOptions()
+		out1 := v.FormatMessage(options, level, msg, false)
 		// File output
 		if lf := v.parent.GetLogFileInfo(); lf != nil {
 			rotateMaxSize := v.parent.GetRotateMaxSize()
 			rotateMaxCount := v.parent.GetRotateMaxCount()
-			out2 := fmtStr(false, level, levelFormat, appName,
-				v.packageName, packagePrintLen, msg, "%[1]s [%[3]s] %[4]s  %[5]s")
-			if err := lf.writeToFile(out2, rotateMaxSize, rotateMaxCount); err != nil {
-				err = spew.Errorf("Failed to report syslog message %q: %v\n", out2, err)
-				v.parent.log.Fatal(err)
+			if err := lf.writeToFile(out1, rotateMaxSize, rotateMaxCount); err != nil {
+				err = spew.Errorf("Failed to report syslog message %q: %v\n", out1, err)
+				printLogs(logs, FatalLevel,
+					func(log *Log, msg interface{}) {
+						log.log.Fatal(msg)
+					},
+					func(colored bool) interface{} {
+						return err
+					})
 			}
 		}
 		// Syslog output
 		if v.parent.GetSyslogEnabled() {
-			if err := v.writeToSyslog(level, levelFormat, appName, msg); err != nil {
+			if err := v.writeToSyslog(options, level, appName, msg); err != nil {
 				err = spew.Errorf("Failed to report syslog message %q: %v\n", msg, err)
-				v.parent.log.Fatal(err)
+				printLogs(logs, FatalLevel,
+					func(log *Log, msg interface{}) {
+						log.log.Fatal(msg)
+					},
+					func(colored bool) interface{} {
+						return err
+					})
 			}
 		}
-		// Console output
-		v.parent.log.Print(out1 + fmt.Sprintln())
+		// Console and custom logs output
+		outColored1 := v.FormatMessage(options, level, msg, true)
+		printLogs(logs, level,
+			func(log *Log, msg interface{}) {
+				log.log.Print(msg)
+			},
+			func(colored bool) interface{} {
+				if colored {
+					return outColored1 + fmt.Sprintln()
+				} else {
+					return out1 + fmt.Sprintln()
+				}
+			})
 		// Check critical events
 		if level == PanicLevel {
 			panic(out1)
@@ -153,6 +221,14 @@ func (v *Package) Infof(format string, args ...interface{}) {
 
 func (v *Package) Info(args ...interface{}) {
 	v.Print(InfoLevel, args...)
+}
+
+func (v *Package) Notifyf(format string, args ...interface{}) {
+	v.Printf(NotifyLevel, format, args...)
+}
+
+func (v *Package) Notify(args ...interface{}) {
+	v.Print(NotifyLevel, args...)
 }
 
 func (v *Package) Warningf(format string, args ...interface{}) {
