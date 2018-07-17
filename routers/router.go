@@ -42,13 +42,6 @@ func CustomAuthFilter(ctx *context.Context) {
 
 }
 
-func CustomCSRFFilter(ctx *context.Context) {
-	if ctx.Input.IsPost() || ctx.Input.IsPut() {
-		//csrfToken := ctx.Input.Param("__csrf__")
-		// !TODO???
-	}
-}
-
 func init() {
 
 	//authPlugin := auth.NewBasicAuthenticator(models.UserAuth, "GoBox Backoffice")

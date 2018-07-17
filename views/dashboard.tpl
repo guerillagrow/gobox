@@ -566,18 +566,12 @@
 			});
 			{{end}}
 			{{if .relay_l1}}
-			//setTimeout(function(){
-				libUX.form.ajaxFormLoad($("#svc-relay-l1-form"));
-			//}, 1000);
+			libUX.form.ajaxFormLoad($("#svc-relay-l1-form"));
 			{{end}}
 			{{if .relay_l2}}
-			//setTimeout(function(){
-				libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
-			//}, 2000);
+			libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
 			{{end}}
-			//setTimeout(function(){
-				libUX.form.ajaxFormLoad($("#svc-user-form"));
-			//}, 3000);
+			libUX.form.ajaxFormLoad($("#svc-user-form"));
 		}
 		
 		$(document).ready(function(){
@@ -696,7 +690,7 @@
 				e.preventDefault();
 				//var fdata = JSON.stringify(getFormJSON($(e.target)));
 				
-				libUX.form.ajaxFormSubmit($(this), "/svc/user?x=1", "POST", function(){
+				libUX.form.ajaxFormSubmit($(this), "/svc/user?v=58991", "POST", function(){
 					$.jGrowl("Saved account settings", { 
 						life: 5000, 
 						closerTemplate: "<div>[ close all ]</div>",
