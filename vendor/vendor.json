@@ -191,62 +191,62 @@
 		{
 			"checksumSHA1": "JurmygmoHdpoa0kx6fA/4NPLZ8s=",
 			"path": "github.com/guerillagrow/beego",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "DmGEKl3DWKB44gLC0bzlYREfu54=",
 			"path": "github.com/guerillagrow/beego/config",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "Vx74dfgVsPoM36/15UfCHDHzrPU=",
 			"path": "github.com/guerillagrow/beego/context",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "tCSoRiAwodEqKpCX9+asI5zKnFo=",
 			"path": "github.com/guerillagrow/beego/context/param",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "MC95NGOwUh+TxOhYGBZCD56cUqQ=",
 			"path": "github.com/guerillagrow/beego/grace",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "eJmVQThrrEexeABSBv4BjUnhOow=",
 			"path": "github.com/guerillagrow/beego/logs",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "7K62Wodc2qUtWw14QoFOxejVacg=",
 			"path": "github.com/guerillagrow/beego/plugins/auth",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "HTqP4t5h3l/90iLu6WZujv45Ia8=",
 			"path": "github.com/guerillagrow/beego/session",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "ePirPDX1+fM3/w6CksaVYKi0deM=",
 			"path": "github.com/guerillagrow/beego/toolbox",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "RRpNS/ZrLvWZsjkDAOUmeX0Txrs=",
 			"path": "github.com/guerillagrow/beego/utils",
-			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
-			"revisionTime": "2018-07-17T11:28:44Z"
+			"revision": "ae108112b1b45b172099be1da66feba968b1df82",
+			"revisionTime": "2018-07-18T20:41:16Z"
 		},
 		{
 			"checksumSHA1": "YwgBtrnnNeFzDzwV3Z4/pQ2wfD8=",
