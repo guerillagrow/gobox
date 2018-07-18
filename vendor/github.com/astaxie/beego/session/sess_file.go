@@ -80,9 +80,6 @@ func (fs *FileSessionStore) SessionID() string {
 func (fs *FileSessionStore) SessionRelease(w http.ResponseWriter) {
 	filepder.lock.Lock()
 	defer filepder.lock.Unlock()
-
-	// !TODO: merge existing file with in-memory data before saving
-
 	b, err := EncodeGob(fs.values)
 	if err != nil {
 		SLogger.Println(err)

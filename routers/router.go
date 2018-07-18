@@ -57,7 +57,8 @@ func init() {
 		beego.NSRouter("/sys/pistats", &controllers.ServiceSys{}, "get:GetPiStats"),
 		beego.NSRouter("/user", &controllers.ServiceUser{}),
 		beego.NSRouter("/export", &controllers.ServiceExport{}),
-		beego.NSRouter("/relay", &controllers.ServiceRelay{}))
+		beego.NSRouter("/relay", &controllers.ServiceRelay{}),
+		beego.NSRouter("/gobox", &controllers.ServiceGoBox{}))
 	beego.AddNamespace(serviceNS)
 
 	beego.SetStaticPath("/static", "static")

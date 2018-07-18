@@ -99,12 +99,6 @@
 			"revisionTime": "2018-07-08T08:11:35Z"
 		},
 		{
-			"checksumSHA1": "kQSheQ6il6bSgWuELtamEZsNUtg=",
-			"path": "github.com/astaxie/beego/plugins/auth",
-			"revision": "08c3ca642eb437f1dd65a617e107bdd9aafb66b0",
-			"revisionTime": "2018-07-08T08:11:35Z"
-		},
-		{
 			"checksumSHA1": "EDaMYv6yHO6Xu9J8loeGIUOvGoE=",
 			"path": "github.com/astaxie/beego/session",
 			"revision": "08c3ca642eb437f1dd65a617e107bdd9aafb66b0",
@@ -195,22 +189,64 @@
 			"revisionTime": "2018-04-24T20:25:46Z"
 		},
 		{
-			"checksumSHA1": "g/V4qrXjUGG9B+e3hB+4NAYJ5Gs=",
-			"path": "github.com/gorilla/context",
-			"revision": "08b5f424b9271eedf6f9f0ce86cb9396ed337a42",
-			"revisionTime": "2016-08-17T18:46:32Z"
+			"checksumSHA1": "JurmygmoHdpoa0kx6fA/4NPLZ8s=",
+			"path": "github.com/guerillagrow/beego",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
 		},
 		{
-			"checksumSHA1": "mitzC+fL94AXk/KeUfEZG6Ynb3U=",
-			"path": "github.com/gorilla/securecookie",
-			"revision": "78f3d318a8bf316cda921f25e96fd0b441c5173d",
-			"revisionTime": "2018-06-08T14:44:17Z"
+			"checksumSHA1": "DmGEKl3DWKB44gLC0bzlYREfu54=",
+			"path": "github.com/guerillagrow/beego/config",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
 		},
 		{
-			"checksumSHA1": "nB526COHQwGljTcMf+JJP3gc9Ck=",
-			"path": "github.com/gorilla/sessions",
-			"revision": "03b6f63cc43ef9c7240a635a5e22b13180e822b8",
-			"revisionTime": "2018-06-06T15:52:11Z"
+			"checksumSHA1": "Vx74dfgVsPoM36/15UfCHDHzrPU=",
+			"path": "github.com/guerillagrow/beego/context",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "tCSoRiAwodEqKpCX9+asI5zKnFo=",
+			"path": "github.com/guerillagrow/beego/context/param",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "MC95NGOwUh+TxOhYGBZCD56cUqQ=",
+			"path": "github.com/guerillagrow/beego/grace",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "eJmVQThrrEexeABSBv4BjUnhOow=",
+			"path": "github.com/guerillagrow/beego/logs",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "7K62Wodc2qUtWw14QoFOxejVacg=",
+			"path": "github.com/guerillagrow/beego/plugins/auth",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "HTqP4t5h3l/90iLu6WZujv45Ia8=",
+			"path": "github.com/guerillagrow/beego/session",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "ePirPDX1+fM3/w6CksaVYKi0deM=",
+			"path": "github.com/guerillagrow/beego/toolbox",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
+		},
+		{
+			"checksumSHA1": "RRpNS/ZrLvWZsjkDAOUmeX0Txrs=",
+			"path": "github.com/guerillagrow/beego/utils",
+			"revision": "1180ddd37df235b5ece8b1da812d84b3327b8743",
+			"revisionTime": "2018-07-17T11:28:44Z"
 		},
 		{
 			"checksumSHA1": "YwgBtrnnNeFzDzwV3Z4/pQ2wfD8=",
@@ -240,6 +276,24 @@
 			"path": "github.com/jtolds/gls",
 			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
 			"revisionTime": "2017-05-03T22:40:06Z"
+		},
+		{
+			"checksumSHA1": "k1MUPpAbtF6JiyP80WTId1tX/Ns=",
+			"path": "github.com/mcuadros/go-version",
+			"revision": "6d5863ca60fa6fe914b5fd43ed8533d7567c5b0b",
+			"revisionTime": "2018-06-11T08:56:57Z"
+		},
+		{
+			"checksumSHA1": "CxNwJP++vjUAyy3bbJnNss1Il9Q=",
+			"path": "github.com/moul/http2curl",
+			"revision": "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d",
+			"revisionTime": "2017-09-19T18:10:01Z"
+		},
+		{
+			"checksumSHA1": "eMb+00rKbq8U/bt40OvX1bXMNVQ=",
+			"path": "github.com/parnurzeal/gorequest",
+			"revision": "8e3aed27fe49f7fdc765dad067845f600fc984e8",
+			"revisionTime": "2017-10-15T11:04:55Z"
 		},
 		{
 			"checksumSHA1": "ljd3FhYRJ91cLZz3wsH9BQQ2JbA=",
@@ -378,6 +432,12 @@
 			"path": "golang.org/x/crypto/scrypt",
 			"revision": "a49355c7e3f8fe157a85be2f77e6e269a0f89602",
 			"revisionTime": "2018-06-20T09:14:27Z"
+		},
+		{
+			"checksumSHA1": "bMhIYx4Cgl6jit4Y2PW+dKsrFuU=",
+			"path": "golang.org/x/net/publicsuffix",
+			"revision": "d0887baf81f4598189d4e12a37c6da86f0bba4d0",
+			"revisionTime": "2018-07-12T19:54:13Z"
 		},
 		{
 			"checksumSHA1": "hJhWnWlJPH69GG7pNZjqm8Lt664=",

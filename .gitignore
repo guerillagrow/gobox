@@ -1,7 +1,8 @@
 dev/
 tmp/*
 release_rpi.sh
-build_release.sh
+build_release_arm.sh
+build_release_amd64.sh
 vendorify.sh
 release/
 run.sh

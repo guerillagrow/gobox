@@ -265,15 +265,19 @@ Whats comming next? Well I think of better graphs and query options.
 So in the next release I think we will get much better performance for the web forntend loading and graph stuff.
 There also might come a userfriendly command line setup to make the installation process easier!
 
-NOTE: Please for now only use in-memoy sessions and no file-based sessions! 
+NOTE: The (current/v1.9.2) standard beego implementation has a flawed 
+file base session handling, because of this facrt GoBox uses a custom beego build (https://github.com/guerillagrow/beego)
 
 Big thanks to the developers of gobot.io! They made it so muche easier for me. Check it out at: https://gobot.io/
 
 ## 6.) TODOs
 
 * Add tests
+* Fix win32 build scripts and upload_gobox.bat (maybe make a executable setup)
+* Change raspberrypi.json config structure and its implementation to allow an arbitrary
+	number of sensors
 * Maybe add ability for measure PH of water if we grow in hydro culture
-	See: http://www.sparkyswidgets.com/product/miniph/
+	See: http://www.sparkyswidgets.com/product/miniph/ and 
 		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage
 * Maybe add webcam monitoring functionality
 * Clean up code base. Make it more idiomatic.

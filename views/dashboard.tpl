@@ -333,7 +333,7 @@
 							  <div class="form-group">
 							    <label for="password" class="col-sm-2 control-label">New Password</label>
 							    <div class="col-sm-10">
-							      <input type="password" class="form-control" name="password" placeholder="Password">
+							      <input type="password" class="form-control" name="password" placeholder="New password">
 							    </div>
 							  </div>
 							  <div class="form-group">
