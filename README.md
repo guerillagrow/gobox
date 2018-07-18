@@ -272,7 +272,6 @@ Big thanks to the developers of gobot.io! They made it so muche easier for me. C
 ## 6.) TODOs
 
 * Add tests
-* Fix broken beego file based session store. Build custom store using gorilla/sessions package
 * Maybe add ability for measure PH of water if we grow in hydro culture
 	See: http://www.sparkyswidgets.com/product/miniph/
 		http://wiki.seeedstudio.com/Grove-PH_Sensor/#usage

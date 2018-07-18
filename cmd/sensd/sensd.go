@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -26,6 +27,7 @@ var Config *jstorage.Storage = jstorage.NewStorage()
 var mainQueue chan common.Response
 
 var ARG_CONFIG_FILE *string
+var ARG_Debug *bool
 
 func main() {
 	sigs := make(chan os.Signal, 1)
@@ -41,6 +43,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	ARG_CONFIG_FILE = flag.String("c", "", "JSON config file")
+	ARG_Debug = flag.Bool("debug", false, "Debug mode")
 	flag.Parse()
 
 	mainQueue = make(chan common.Response)
@@ -91,12 +94,14 @@ func sensorWorkT(sensorName string, dhtType dht.SensorType) {
 		var res common.Response
 		sensorPin, cerr := Config.GetInt(fmt.Sprintf("devices/%s/gpio", strings.ToLower(sensorName)))
 		if cerr != nil {
+			DebugLogError(cerr)
 			time.Sleep(2 * time.Second)
 			continue
 		}
 		tmp, hum, _, err := dht.ReadDHTxxWithRetry(dhtType, int(sensorPin), false, 4)
 
 		if err != nil {
+			DebugLogError(err)
 			//log.Println(err)
 			time.Sleep(2 * time.Second)
 			continue
@@ -149,6 +154,7 @@ func sensorWorkS(sensorName string) {
 		var res common.Response
 		sensorPin, cerr := Config.GetInt(fmt.Sprintf("devices/%s/gpio", strings.ToLower(sensorName)))
 		if cerr != nil {
+			DebugLogError(cerr)
 			time.Sleep(2 * time.Second)
 			continue
 		}
@@ -186,5 +192,17 @@ func sensorWorkS(sensorName string) {
 			t1Sleep = 30
 		}
 		time.Sleep(time.Duration(t1Sleep) * time.Second)
+	}
+}
+
+func DebugLogError(e error) {
+	if *ARG_Debug {
+		log.Println("[DEBUG]", e)
+	}
+}
+
+func DebugLog(s string) {
+	if *ARG_Debug {
+		log.Println("[DEBUG]", s)
 	}
 }

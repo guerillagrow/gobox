@@ -33,7 +33,7 @@ import (
 // !NOTE: maybe add flag pkg to parse -c as config file flag/arg
 
 var DB *storm.DB
-var GoBox *Box
+var GoBox *Box = NewBox()
 var BoxConfig *jstorage.Storage = jstorage.NewStorage()
 var ARG_ConfigFile *string
 var ARG_Debug *bool
@@ -64,7 +64,6 @@ func Init() {
 	InitDatabase()
 
 	devices := []gobot.Device{}
-	GoBox = NewBox()
 	GoBox.RPIAdaptor = raspi.NewAdaptor()
 	//GoBox.RelayL1 = gpio.NewLedDriver(GoBox.RPIAdaptor, "4")
 	rl1Status, _ := BoxConfig.GetBool("devices/relay_l1/status")
@@ -167,10 +166,16 @@ func (box *Box) Start() {
 	go box.Robot.Start()
 	var cerr error
 	sensdBin, _ := BoxConfig.GetString("sensd_bin")
-	box.mux.Lock()
-	box.SensDCmd = exec.Command(sensdBin, "-c", BoxConfig.File)
-	box.mux.Unlock()
 	if sensdBin != "" {
+		box.mux.Lock()
+		args := []string{}
+		if *ARG_Debug {
+			args = []string{"-debug", "-c", BoxConfig.File}
+		} else {
+			args = []string{"-c", BoxConfig.File}
+		}
+		box.SensDCmd = exec.Command(sensdBin, args...)
+		box.mux.Unlock()
 		box.SensDStdout, cerr = box.SensDCmd.StdoutPipe()
 		checkError(cerr)
 		box.SensDStdin, cerr = box.SensDCmd.StdinPipe()
@@ -178,8 +183,9 @@ func (box *Box) Start() {
 		serr := box.SensDCmd.Start()
 		if serr != nil {
 			log.Println("Couldn't start sensD process!", serr)
+		} else {
+			go box.ReadSensDPipe()
 		}
-		go box.ReadSensDPipe()
 	}
 }
 
@@ -213,9 +219,11 @@ func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) 
 		if rlForce != 0 && (rlForce == 1 || rlForce == -1) {
 
 			if rlForce == 1 {
-				relayDevice.On()
+				DebugLog(fmt.Sprintf("Force switch relay %s on", relayName))
+				DebugLogError(relayDevice.On())
 			} else {
-				relayDevice.Off()
+				DebugLog(fmt.Sprintf("Force switch relay %s off", relayName))
+				DebugLogError(relayDevice.Off())
 			}
 
 		} else if rlCond != "" {
@@ -224,13 +232,16 @@ func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) 
 			if berr != nil {
 				log.Println(berr)
 				SaveException("internal", fmt.Sprintf("relay/%s", relayName), berr)
+				DebugLogError(berr)
 			} else {
 				if condRes {
-					relayDevice.On()
+					DebugLog(fmt.Sprintf("Switch relay %s on", relayName))
+					DebugLogError(relayDevice.On())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				} else {
-					relayDevice.Off()
+					DebugLog(fmt.Sprintf("Switch relay %s off", relayName))
+					DebugLogError(relayDevice.Off())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				}
@@ -239,21 +250,25 @@ func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) 
 			rlLastSwitch, _ := box.RelayCache.GetString(fmt.Sprintf("relay_%s/last_switch", relayName))
 			if tOn > tOff && (rlLastSwitch == "" || rlLastSwitch < tD) {
 				if t >= tOff && rlLastSwitch != "" && relayDevice.State() == true {
-					relayDevice.Off()
+					DebugLog(fmt.Sprintf("Switch relay %s off", relayName))
+					DebugLogError(relayDevice.Off())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				} else if t >= tOn && relayDevice.State() == false {
-					relayDevice.On()
+					DebugLog(fmt.Sprintf("Switch relay %s on", relayName))
+					DebugLogError(relayDevice.On())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				}
 			} else if tOn < tOff {
 				if t >= tOff || t < tOn {
-					relayDevice.Off()
+					DebugLog(fmt.Sprintf("Switch relay %s off", relayName))
+					DebugLogError(relayDevice.Off())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				} else if t >= tOn && relayDevice.State() == false {
-					relayDevice.On()
+					DebugLog(fmt.Sprintf("Switch relay %s on", relayName))
+					DebugLogError(relayDevice.On())
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch", relayName), tD)
 					box.RelayCache.Set(fmt.Sprintf("relay_%s/last_switch_time", relayName), t)
 				}
@@ -278,6 +293,9 @@ func (box *Box) ReadSensDPipe() {
 
 		if err != nil {
 			checkError(err)
+			if strings.HasPrefix(string(line), "[DEBUG]") && *ARG_Debug {
+				log.Println(string(line))
+			}
 			time.Sleep(500 * time.Millisecond)
 			continue
 		}
@@ -509,4 +527,16 @@ func checkError(e error) {
 		return
 	}
 	log.Println(e)
+}
+
+func DebugLogError(e error) {
+	if *ARG_Debug {
+		log.Println("[DEBUG]", e)
+	}
+}
+
+func DebugLog(s string) {
+	if *ARG_Debug {
+		log.Println("[DEBUG]", s)
+	}
 }
