@@ -1,4 +1,4 @@
-GoBox - Growbox automation
+GoBox - Growbox automation <img align="right" width="30" height="30" src="https://raw.githubusercontent.com/guerillagrow/gobox/master/static/img/cannabis-logo-sm.png">
 ---------------------------
 
 
