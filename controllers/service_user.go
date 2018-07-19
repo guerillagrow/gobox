@@ -45,8 +45,6 @@ func (c *ServiceUser) Get() {
 
 func (c *ServiceUser) Post() {
 
-	// !TODO // !DEBUG: CSRF stuff fucks me up....
-
 	var res JSONResp
 
 	csrfErr := CSRF.ValidateToken(fmt.Sprintf("svc"), c.GetString("__csrf__"), c.Ctx)

@@ -44,5 +44,12 @@
     "sensd_bin": "./cmd/sensd/sensd_amd64_mock",
     "stats": {
         "delete_older_than": 72
-    }
+    },
+	"export": {
+		"delete_files_older_than": 14	
+	},
+	"ui": {
+		"metric_source": "live",
+		"language": "en"
+	}
 }

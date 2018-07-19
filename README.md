@@ -156,10 +156,10 @@ settings for your sensors. You can set the GPIO pin according to your setting.
 
 Description of config variables in rapspberrypi.json:
 ```
-devices.t1                  => DHT11 Sensor #1
-devices.t1.status           => Is this sensor plugged in / used
-devices.t1.gpio             => GPIO Data Pin 
-devices.t1.read_every       => Value in seconds / Interval to read from sensor
+devices.t1                             => DHT11 Sensor #1
+devices.t1.status                      => Is this sensor plugged in / used
+devices.t1.gpio                        => GPIO Data Pin 
+devices.t1.read_every                  => Value in seconds / Interval to read from sensor
 # Same for devices.t2.*
 
 devices.relay_l1                       => Relay config
@@ -171,6 +171,8 @@ devices.relay_l1.settings.condition    => Contition used to turn relay on/off, i
 devices.relay_l1.settings.force        => -1: None; 0: Force off; 1: Force on
 devices.relay_l1.settings.on           => Time when relay goes on, like: 08:30
 devices.relay_l1.settings.off          => Time when relay goes off, like: 20:30
+
+ui.metric_source                       => Use aggregated stats instead of live data (possible values: "live", "stats")
    ...
 ```
 
@@ -274,6 +276,9 @@ Big thanks to the developers of gobot.io! They made it so muche easier for me. C
 
 * Add tests
 * Fix win32 build scripts and upload_gobox.bat (maybe make a executable setup)
+* Add i18n (en, de, fr, es, nl)
+* Add bootstrap datetime picker (requires adaption of libUX.js)
+* Add ability to show temperature in fahrenheit & celsius
 * Change raspberrypi.json config structure and its implementation to allow an arbitrary
 	number of sensors
 * Maybe add ability for measure PH of water if we grow in hydro culture

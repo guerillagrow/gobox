@@ -26,6 +26,8 @@ func (c *DashboarController) Get() {
 	c.Data["sensor_s1"], _ = models.BoxConfig.GetBool("devices/s1/status")
 	c.Data["sensor_s2"], _ = models.BoxConfig.GetBool("devices/s2/status")
 
+	c.Data["metric_source"], _ = models.BoxConfig.GetString("ui/metric_source")
+
 	c.Data["user_isadmin"] = isAdmin
 	c.TplName = "dashboard.tpl"
 }

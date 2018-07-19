@@ -107,7 +107,11 @@ var libUX = {
 							// !DEBUG
 							//console.log("Add elem: ", i, " -> ", v);
 						});
-					} else if (typeof clb === "function" && opt.meta.status == 200){
+					}
+					if(typeof opt.meta.error == "string"){
+						elem.prepend('<div class="form-error"></div>').text(opt.meta.error);
+					} 
+					if (typeof clb === "function" && opt.meta.status == 200){
 						clb(opt)
 					}
 				
@@ -117,6 +121,11 @@ var libUX = {
 				},
 				error: function(opt){
 					elem.find(".form-error").remove();
+					if(typeof opt == "object" && typeof opt.meta == "object" && typeof opt.meta.errors == "object"){
+						// !TODO
+					}else if(typeof opt == "object" && typeof opt.meta == "object" && typeof opt.meta.error == "string"){
+						elem.prepend('<div class="form-error"></div>').text(opt.meta.error);
+					}
 					elem.prepend('<div class="form-error"></div>').text(libUX.lang.form.err_submit);
 				},
 				async: true

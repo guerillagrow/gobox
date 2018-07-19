@@ -1,44 +1,45 @@
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>GoBox</title>
-<link rel="shortcut icon" type="image/png" href="/static/img/cannabis-logo-sm_x16.png"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- jQuery UI -->
-    <!-- link href="https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css" rel="stylesheet" media="screen" -->
-
-    <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- styles -->
-    <link href="/static/css/styles.css" rel="stylesheet">
-
-    <link href="/static/css/stats.css" rel="stylesheet">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
+	<head>
+		<title>GoBox</title>
+		<link rel="shortcut icon" type="image/png" href="/static/img/cannabis-logo-sm_x16.png"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- jQuery UI -->
+		<!-- link href="https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css" rel="stylesheet" media="screen" -->
+		
+		<!-- Bootstrap -->
+		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<!-- styles -->
+		<link href="/static/css/styles.css" rel="stylesheet">
+		
+		<link href="/static/css/stats.css" rel="stylesheet">
+		<link href="/static/vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
+		
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+		<![endif]-->
+		
+		
+		<style type="text/css">
+			.panel-options i.glyphicon {
+				font-size: 24px;  
+			}
+			form .form-error {
+				margin: 5px;
+				display:block;
+				padding: 10px;
+				border: 2px solid red;
+			}
+		</style>
+		
+		
+	</head>
 	
-	
-	<style type="text/css">
-		.panel-options i.glyphicon {
-		    font-size: 24px;  
-		}
-		form .form-error {
-			margin: 5px;
-			display:block;
-			padding: 10px;
-			border: 2px solid red;
-		}
-	</style>
-	
-	
-  </head>
-
-  <body>
+	<body>
   	<div class="header" style="min-height:70px;">
 	     <div class="container">
 	        <div class="row">
@@ -80,275 +81,346 @@
 	        </div>
 	     </div>
 	</div>
-
-    <div class="page-content">
-		
 	
-		{{if  or (.sensor_t1) (.sensor_t2)}}
-    		<div class="row">
 		
-		  <div class="col-md-12">
-
-  			<div class="row">
-				{{if .sensor_t1}}
-  				<div class="col-md-6">
-  					<div class="content-box-large" id="sensor-t1-chart">
-		  				<div class="panel-heading">
-							<div class="panel-title">Sensor T1</div>
+	<div class="page-content">
+	
+	    {{if or (.sensor_t1) (.sensor_t2)}}
+	    <div class="row">
+	
+	        <div class="col-md-12">
+	
+	            <div class="row">
+	                {{if .sensor_t1}}
+	                <div class="col-md-6">
+	                    <div class="content-box-large" id="sensor-t1-chart">
+	                        <div class="panel-heading">
+	                            <div class="panel-title">Sensor T1</div>
+	
+	                            <div class="panel-options">
+	                                <a href="#" data-rel="collapse" class="x-refresh"><i class="glyphicon glyphicon-refresh"></i></a>
+	
+	                            </div>
+	                        </div>
+	                        <div class="panel-body">
+	                            <div>
+	                                <b>Temperature:</b> <span class="cur-temp"></span> °C
+	                                <br>
+	                                <b>Humidity:</b> <span class="cur-hum"></span> % rH
+	                                <br>
+	                                <button class="btn btn-default x-tl-day x-tgl" data-value="day">Last Day</button>
+	                                <button class="btn btn-default x-tl-hour x-tgl active" data-value="hour">Last Hours</button>
+	                            </div>
+	                            <br>
+	                            <div class="tchart" style="width:100%;height:300px"></div>
+	                        </div>
+	                    </div>
+	                </div>
+	                {{end}} {{if .sensor_t2}}
+	                <div class="col-md-6">
+	                    <div class="content-box-large" id="sensor-t2-chart">
+	                        <div class="panel-heading">
+	                            <div class="panel-title">Sensor T2</div>
+	
+	                            <div class="panel-options">
+	                                <a href="#" data-rel="collapse" class="x-refresh"><i class="glyphicon glyphicon-refresh"></i></a>
+	                            </div>
+	                        </div>
+	                        <div class="panel-body">
+	                            <div>
+	                                <b>Temperature:</b> <span class="cur-temp"></span> °C
+	                                <br>
+	                                <b>Humidity:</b> <span class="cur-hum"></span> % rH
+	                                <br>
+	                                <button class="btn btn-default x-tl-day x-tgl" data-value="day">Last Day</button>
+	                                <button class="btn btn-default x-tl-hour x-tgl active" data-value="hour">Last Hours</button>
+	                            </div>
+	                            <br>
+	                            <div class="tchart" style="width:100%;height:300px"></div>
+	                        </div>
+	                    </div>
+	                </div>
+	                {{end}}
+	            </div>
+	
+	        </div>
+	    </div>
+	    {{end}} {{if or (.relay_l1) (.relay_l2)}}
+	    <div class="row">
+	
+	        <div class="col-md-12">
+	
+	            <div class="row">
+	                {{if .relay_l1}}
+	                <div class="{{if .relay_l2}}col-md-6{{else}}col-md-12{{end}} col-sm-12">
+	                    <div class="content-box-large">
+	                        <div class="panel-heading">
+	                            <div class="panel-title">Relay L1 Config</div>
+	
+	                            <!--div class="panel-options" style="display:none;">
+										<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
+										<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
+									</div-->
+	                        </div>
+	                        <div class="panel-body">
+	                            <form class="form-horizontal" role="form" id="svc-relay-l1-form" data-frmdest="/svc/relay?target=l1" data-frmdata="">
+	                                <div class="form-group">
+	                                    <label for="ton" class="col-sm-2 control-label">Time On</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="ton" placeholder="On-Time">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="toff" class="col-sm-2 control-label">Time Off</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="toff" placeholder="Off-Time">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="cond" class="col-sm-2 control-label">Condition</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group" style="">
+	                                    <label for="cond" class="col-sm-2 control-label">Force</label>
+	                                    <div class="col-sm-10">
+	                                        <div class="checkbox">
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="-1" name="force"> Off
+	                                            </label>
+	
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="1" name="force"> On
+	                                            </label>
+	
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="0" name="force"> None
+	                                            </label>
+	
+	                                        </div>
+	                                    </div>
+	
+	                                    <!--div class="btn-group btn-group-toggle" data-toggle="buttons">
+										  <label class="btn btn-secondary active">
+										    <input type="radio" name="force" autocomplete="off" value="1"> On
+										  </label>
+										  <label class="btn btn-secondary">
+										    <input type="radio" name="force" autocomplete="off" value="-1"> Off
+										  </label>
+										  <label class="btn btn-secondary">
+										    <input type="radio" name="force" autocomplete="off" value="0"> None
+										  </label>
+										</div-->
+	
+	                                </div>
+	                                <div class="form-group">
+	                                    <div class="col-sm-offset-2 col-sm-10">
+	                                        <button type="submit" class="btn btn-primary">Save</button>
+	                                        <input type="hidden" name="__csrf__" value="">
+	                                    </div>
+	                                </div>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	                {{end}} {{if .relay_l2}}
+	                <div class="{{if .relay_l1}}col-md-6{{else}}col-md-12{{end}} col-sm-12">
+	                    <div class="content-box-large">
+	                        <div class="panel-heading">
+	                            <div class="panel-title">Relay L2 Config</div>
+	
+	                            <!--div class="panel-options" style="display:none;">
+										<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
+										<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
+									</div-->
+	                        </div>
+	                        <div class="panel-body">
+	                            <form class="form-horizontal" role="form" id="svc-relay-l2-form" data-frmdest="/svc/relay?target=l2" data-frmdata="">
+	                                <div class="form-group">
+	                                    <label for="ton" class="col-sm-2 control-label">Time On</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="ton" placeholder="On-Time">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="toff" class="col-sm-2 control-label">Time Off</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="toff" placeholder="Off-Time">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="cond" class="col-sm-2 control-label">Condition</label>
+	                                    <div class="col-sm-10">
+	                                        <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
+	                                    </div>
+	                                </div>
+	                                <div class="form-group" style="">
+	
+	                                    <label for="cond" class="col-sm-2 control-label">Force</label>
+	                                    <div class="col-sm-10">
+	                                        <div class="checkbox">
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="-1" name="force"> Off
+	                                            </label>
+	
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="1" name="force"> On
+	                                            </label>
+	
+	                                            <label>
+	                                                <!--input type="checkbox" name="status"> Relay Status -->
+	                                                <input type="radio" value="0" name="force"> None
+	                                            </label>
+	
+	                                        </div>
+	                                    </div>
+	
+	                                </div>
+	                                <div class="form-group">
+	                                    <div class="col-sm-offset-2 col-sm-10">
+	                                        <button type="submit" class="btn btn-primary">Save</button>
+	                                        <input type="hidden" name="__csrf__" value="">
+	                                    </div>
+	                                </div>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	                {{end}}
+	            </div>
+	        </div>
+	    </div>
+	    {{end}}
+	
+	    <div class="row">
+	
+	        <div class="col-md-12">
+	            <div class="col-md-6">
+	                <div class="content-box-large">
+	                    <div class="panel-heading">
+	                        <div class="panel-title">Account settings</div>
+	
+	                        <!--div class="panel-options" style="display:none;">
+											<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
+											<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
+										</div-->
+	                    </div>
+	                    <div class="panel-body">
+	                        <form class="form-horizontal" role="form" id="svc-user-form" data-frmdest="/svc/user" data-frmdata="">
+	                            <div class="form-group">
+	                                <label for="name" class="col-sm-2 control-label">Name</label>
+	                                <div class="col-sm-10">
+	                                    <input type="text" class="form-control" name="name" placeholder="Username">
+	                                </div>
+	                            </div>
+	                            <div class="form-group">
+	                                <label for="email" class="col-sm-2 control-label">Email</label>
+	                                <div class="col-sm-10">
+	                                    <input type="text" class="form-control" name="email" placeholder="Email">
+	                                </div>
+	                            </div>
+	                            <div class="form-group">
+	                                <label for="current_password" class="col-sm-2 control-label">Current Password</label>
+	                                <div class="col-sm-10">
+	                                    <input type="password" class="form-control" name="current_password" placeholder="Current password">
+	                                </div>
+	                            </div>
+	                            <div class="form-group">
+	                                <label for="password" class="col-sm-2 control-label">New Password</label>
+	                                <div class="col-sm-10">
+	                                    <input type="password" class="form-control" name="password" placeholder="New password">
+	                                </div>
+	                            </div>
+	                            <div class="form-group">
+	                                <div class="col-sm-offset-2 col-sm-10">
+	                                    <button type="submit" class="btn btn-primary">Save</button>
+	                                    <input type="hidden" name="__csrf__" value="">
+	                                </div>
+	                            </div>
+	                        </form>
+	                    </div>
+	                </div>
+	            </div>
 							
-							<div class="panel-options">
-								<a href="#" data-rel="collapse" class="x-refresh"><i class="glyphicon glyphicon-refresh"></i></a>
-
-							</div>
-						</div>
-		  				<div class="panel-body">
-							<div>
-								<b>Temperature:</b> <span class="cur-temp"></span> °C<br>
-								<b>Humidity:</b> <span class="cur-hum"></span> % rH<br>
-								<button class="btn btn-default x-tl-day x-tgl" data-value="day">Last Day</button> <button class="btn btn-default x-tl-hour x-tgl active"  data-value="hour">Last Hours</button>
-							</div><br>
-		  					<div class="tchart" style="width:100%;height:300px"></div>
-		  				</div>
-		  			</div>
-  				</div>
-  				{{end}}
-				{{if .sensor_t2}}
+							
 				<div class="col-md-6">
-  					<div class="content-box-large"  id="sensor-t2-chart">
-		  				<div class="panel-heading">
-							<div class="panel-title">Sensor T2</div>
-							
-							<div class="panel-options">
-								<a href="#" data-rel="collapse" class="x-refresh"><i class="glyphicon glyphicon-refresh"></i></a>
-							</div>
-						</div>
-		  				<div class="panel-body">
-							<div>
-								<b>Temperature:</b> <span class="cur-temp"></span> °C<br>
-								<b>Humidity:</b> <span class="cur-hum"></span> % rH<br>
-								<button class="btn btn-default x-tl-day x-tgl" data-value="day">Last Day</button> <button class="btn btn-default x-tl-hour x-tgl active"  data-value="hour">Last Hours</button>
-							</div><br>
-		  					<div class="tchart" style="width:100%;height:300px"></div>
-		  				</div>
-		  			</div>
-  				</div>
-  				{{end}}
-			</div>
-
-		  </div>
-		</div>
-		{{end}}
-		
-		{{if  or (.relay_l1) (.relay_l2)}}
-    		<div class="row">
-		
-		  <div class="col-md-12">
-
-  			<div class="row">
-				{{if .relay_l1}}
-  				<div class="{{if .relay_l2}}col-md-6{{else}}col-md-12{{end}} col-sm-12">
-  					<div class="content-box-large">
-		  				<div class="panel-heading">
-							<div class="panel-title">Relay L1 Config</div>
-							
-							<!--div class="panel-options" style="display:none;">
-								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
-								<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
-							</div-->
-						</div>
-		  				<div class="panel-body">
-							<form class="form-horizontal" role="form" id="svc-relay-l1-form" data-frmdest="/svc/relay?target=l1" data-frmdata="">
-							  <div class="form-group">
-							    <label for="ton" class="col-sm-2 control-label">Time On</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="ton" placeholder="On-Time">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="toff" class="col-sm-2 control-label">Time Off</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="toff" placeholder="Off-Time">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="cond" class="col-sm-2 control-label">Condition</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
-							    </div>
-							  </div>
-							  <div class="form-group" style="">
-							    <label for="cond" class="col-sm-2 control-label">Force</label>
-							    <div class="col-sm-10">
-							      <div class="checkbox">									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="-1" name="force"> Off
-							        </label>
-									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="1" name="force"> On
-							        </label>
-									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="0" name="force"> None
-							        </label>
-									
-									
-							      </div>
-							    </div>
-								
-								<!--div class="btn-group btn-group-toggle" data-toggle="buttons">
-								  <label class="btn btn-secondary active">
-								    <input type="radio" name="force" autocomplete="off" value="1"> On
-								  </label>
-								  <label class="btn btn-secondary">
-								    <input type="radio" name="force" autocomplete="off" value="-1"> Off
-								  </label>
-								  <label class="btn btn-secondary">
-								    <input type="radio" name="force" autocomplete="off" value="0"> None
-								  </label>
-								</div-->
-							  
-							
-							</div>
-							  <div class="form-group">
-							    <div class="col-sm-offset-2 col-sm-10">
-							      <button type="submit" class="btn btn-primary">Save</button>
-								  <input type="hidden" name="__csrf__" value="">
-							    </div>
-							  </div>
-							</form>
-		  				</div>
-		  			</div>
-  				</div>
-				{{end}}
-				{{if .relay_l2}}
-  				<div class="{{if .relay_l1}}col-md-6{{else}}col-md-12{{end}} col-sm-12">
-  					<div class="content-box-large">
-		  				<div class="panel-heading">
-							<div class="panel-title">Relay L2 Config</div>
-							
-							<!--div class="panel-options" style="display:none;">
-								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
-								<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
-							</div-->
-						</div>
-		  				<div class="panel-body">
-							<form class="form-horizontal" role="form" id="svc-relay-l2-form" data-frmdest="/svc/relay?target=l2" data-frmdata="">
-							  <div class="form-group">
-							    <label for="ton" class="col-sm-2 control-label">Time On</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="ton" placeholder="On-Time">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="toff" class="col-sm-2 control-label">Time Off</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="toff" placeholder="Off-Time">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="cond" class="col-sm-2 control-label">Condition</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="cond" placeholder="Relay switch condition">
-							    </div>
-							  </div>
-							  <div class="form-group" style="">
-							
-							    <label for="cond" class="col-sm-2 control-label">Force</label>
-							    <div class="col-sm-10">
-							      <div class="checkbox">									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="-1" name="force"> Off
-							        </label>
-									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="1" name="force"> On
-							        </label>
-									
-							        <label>
-							          <!--input type="checkbox" name="status"> Relay Status -->
-								        <input type="radio" value="0" name="force"> None
-							        </label>
-									
-									
-							      </div>
-							    </div>
-								
-							  </div>
-							  <div class="form-group">
-							    <div class="col-sm-offset-2 col-sm-10">
-							      <button type="submit" class="btn btn-primary">Save</button>
-								  <input type="hidden" name="__csrf__" value="">
-							    </div>
-							  </div>
-							</form>
-		  				</div>
-		  			</div>
-  				</div>				
-				{{end}}
-			</div>
-			</div>
-		</div>
-		{{end}}
-    </div>
-
-	<div class="row">
-	
-		<div class="col-md-12">
-  				<div class="col-md-12">
-  					<div class="content-box-large">
-		  				<div class="panel-heading">
-							<div class="panel-title">Account settings</div>
-							
-							<!--div class="panel-options" style="display:none;">
-								<a href="#" data-rel="collapse"><i class="glyphicon glyphicon-refresh"></i></a>
-								<a href="#" data-rel="reload"><i class="glyphicon glyphicon-cog"></i></a>
-							</div-->
-						</div>
-		  				<div class="panel-body">
-							<form class="form-horizontal" role="form" id="svc-user-form" data-frmdest="/svc/user" data-frmdata="">
-							  <div class="form-group">
-							    <label for="name" class="col-sm-2 control-label">Name</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="name" placeholder="Username">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="email" class="col-sm-2 control-label">Email</label>
-							    <div class="col-sm-10">
-							      <input type="text" class="form-control" name="email" placeholder="Email">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="current_password" class="col-sm-2 control-label">Current Password</label>
-							    <div class="col-sm-10">
-							      <input type="password" class="form-control" name="current_password" placeholder="Current password">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <label for="password" class="col-sm-2 control-label">New Password</label>
-							    <div class="col-sm-10">
-							      <input type="password" class="form-control" name="password" placeholder="New password">
-							    </div>
-							  </div>
-							  <div class="form-group">
-							    <div class="col-sm-offset-2 col-sm-10">
-							      <button type="submit" class="btn btn-primary">Save</button>
-								  <input type="hidden" name="__csrf__" value="">
-							    </div>
-							  </div>
-							</form>
-		  				</div>
-		  			</div>
-  				</div>
-		</div>
+				    <div class="content-box-large">
+				        <div class="panel-heading">
+				            <div class="panel-title">Export sensor metrics</div>
+				
+				        </div>
+				        <div class="panel-body">
+				            <form class="form-horizontal" role="form" id="svc-export-form" data-frmdest="/svc/export?vx=872" data-frmdata="getExportFormData();">
+				                <div class="form-group">
+				                    <label for="from" class="col-sm-2 control-label">From</label>
+				
+				                    <div class='input-group date' id='export-from-time'>
+				                        <input type='text' class="form-control" name="from" />
+				                        <span class="input-group-addon">
+											                        <span class="glyphicon glyphicon-time"></span>
+				                        </span>
+				                    </div>
+				                </div>
+				                <div class="form-group">
+				                    <label for="to" class="col-sm-2 control-label">To</label>
+				
+				                    <div class='input-group date' id='export-to-time'>
+				                        <input type='text' class="form-control" name="to" />
+				                        <span class="input-group-addon">
+											              <span class="glyphicon glyphicon-time"></span>
+				                        </span>
+				                    </div>
+				                </div>
+				                <div class="form-group">
+				                    <label for="current_password" class="col-sm-2 control-label">Sensors</label>
+				                    <div class="col-sm-10">
+				                        <label>
+				                            <input type="checkbox" class="form-check-input" name="sensors" value="T1"> T1
+				                        </label>
+				                        <label>
+				                            <input type="checkbox" class="form-check-input" name="sensors" value="T2"> T2
+				                        </label>
+				                        <label>
+				                            <input type="checkbox" class="form-check-input" name="sensors" value="D1"> D1
+				                        </label>
+				                        <label>
+				                            <input type="checkbox" class="form-check-input" name="sensors" value="D2"> D2
+				                        </label>
+				                    </div>
+				                </div>
+				                <div class="form-check">
+				                    <label class="col-sm-2">&nbsp;</label>
+					                <div class="col-sm-10">
+					                    <label for="delete_exported" class="form-check-label" style="float:right;">
+					                        <input type="checkbox" class="form-check-input" name="delete_exported" value="1"> Delete exported metrics
+					                    </label>
+					                </div>
+								</div>
+								<div class="form-group">
+				            		<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-primary">Save</button>
+										<input type="hidden" name="__csrf__" value="">
+									</div>
+								</div>
+						</form>
+					</div>
+					</div>
+				</div>
+				
+				
+				
+	    		</div>
+				
+	    </div>
 	</div>
-	
+
+		
 	
     <footer>
          <div class="container">
@@ -358,7 +430,7 @@
             </div>
             
          </div>
-      </footer>
+    </footer>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/static/js/jquery.js"></script>
@@ -367,6 +439,8 @@
   
   <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/vendors/bootstrap-datetimepicker/moment-with-locales.min.js"></script>
+    <script src="/static/vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
 
     <link rel="stylesheet" href="/static/vendors/morris/morris.css">
 
@@ -390,6 +464,8 @@
     <script src="/static/js/custom.js"></script>
     <!--script src="/static/js/stats.js"></script-->
 	<script>
+		
+		var metricStatsSource = {{if eq .metric_source "stats"}}true{{else}}false{{end}};
 		
 		function doPlot(id, position, lt, incr, datax, datay) {
 			if (incr < 2) {
@@ -476,7 +552,7 @@
 					hum: {}
 				}
 			};
-			$.ajax({url: "/svc/sensors/temperature?sensor=T2&g=1&limit="+limitRq, 
+			$.ajax({url: "/svc/sensors/temperature?sensor=T2&g=1&limit="+limitRq + (metricStatsSource ? "&stats=1" : ""), 
 				data: {
 					"tl": tl
 				},
@@ -490,7 +566,7 @@
 				},
 				async: true
 			});
-			$.ajax({url: "/svc/sensors/humidity?sensor=T2&g=1&limit="+limitRq, 
+			$.ajax({url: "/svc/sensors/humidity?sensor=T2&g=1&limit="+limitRq + (metricStatsSource ? "&stats=1" : ""), 
 				data: {
 					"tl": tl
 				},
@@ -519,10 +595,11 @@
 					hum: {}
 				}
 			};
-			$.ajax({url: "/svc/sensors/temperature?sensor=T1&g=1&limit="+limitRq, 
+			$.ajax({url: "/svc/sensors/temperature?sensor=T1&g=1&limit="+limitRq + (metricStatsSource ? "&stats=1" : ""), 
 				data: {
 					"tl": tl
 				},
+				method: "GET",
 				success: function(opt){
 					console.log(opt);
 				
@@ -534,10 +611,11 @@
 				},
 				async: true
 			});
-			$.ajax({url: "/svc/sensors/humidity?sensor=T1&g=1&limit="+limitRq, 
+			$.ajax({url: "/svc/sensors/humidity?sensor=T1&g=1&limit="+limitRq + (metricStatsSource ? "&stats=1" : ""), 
 				data: {
-					"tl": tl
+					"tl": tl,
 				},
+				method: "GET",
 				success: function(opt){
 					console.log(opt);
 					internalRes["t1"]["incr"]++;
@@ -555,6 +633,26 @@
 		}
 		
 		function __init__(){
+			
+
+            $('#export-from-time').datetimepicker({
+                //format: 'LT'
+				format: "YYYY-MM-DD HH:mm:ssl"
+            });
+
+            $('#export-to-time').datetimepicker({
+				//format: 'LT'
+				format: "YYYY-MM-DD HH:mm:ssl",
+				maxDate: "moment",
+				useCurrent: false //Important! See issue #1075
+            });
+			$('#export-from-time').on("dp.change", function (e) {
+				$('#export-to-time').data("DateTimePicker").minDate(e.date);
+			});
+			$('#export-to-time').on("dp.change", function (e) {
+				$('#export-from-time').data("DateTimePicker").maxDate(e.date);
+			});
+
 			{{if .sensor_t1}}
 			getStatsDataT1("hour", function(d){
 				doPlot("#sensor-t1-chart","right", "hour", d["incr"], d["temp"], d["hum"]);
@@ -572,6 +670,7 @@
 			libUX.form.ajaxFormLoad($("#svc-relay-l2-form"));
 			{{end}}
 			libUX.form.ajaxFormLoad($("#svc-user-form"));
+			libUX.form.ajaxFormLoad($("#svc-export-form"));
 		}
 		
 		$(document).ready(function(){
@@ -691,6 +790,19 @@
 				//var fdata = JSON.stringify(getFormJSON($(e.target)));
 				
 				libUX.form.ajaxFormSubmit($(this), "/svc/user?v=58991", "POST", function(){
+					$.jGrowl("Saved account settings", { 
+						life: 5000, 
+						closerTemplate: "<div>[ close all ]</div>",
+						closeTemplate: "×" 
+					});
+				});
+				
+			});
+			$("#svc-export-form").on("submit", function(e){
+				e.preventDefault();
+				//var fdata = JSON.stringify(getFormJSON($(e.target)));
+				
+				libUX.form.ajaxFormSubmit($(this), "/svc/export?v=58991", "POST", function(){
 					$.jGrowl("Saved account settings", { 
 						life: 5000, 
 						closerTemplate: "<div>[ close all ]</div>",

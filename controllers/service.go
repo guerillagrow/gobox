@@ -5,10 +5,11 @@ import (
 
 	//"github.com/asdine/storm/q"
 
-	"context"
+	//"context"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
-
 	//"encoding/json"
 	//"errors"
 
@@ -21,6 +22,8 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
+
+// !TODO: remove some of the aweful duplicate code. Make a custom base controller class an add a JSONOutput method on it
 
 type JSONResp struct {
 	Meta map[string]interface{} `json:"meta"`
@@ -208,6 +211,17 @@ func (c *ServiceSensors) GetTemp() {
 		statsTime,
 	)
 
+	if statsSource {
+		cachVal, _ := models.GoBox.SensorCache.GetFloat64(fmt.Sprintf("%s/temp", strings.ToLower(sensor)))
+		sT := models.Temperature{
+			ID:      0,
+			Sensor:  sensor,
+			Created: time.Now(),
+			Value:   cachVal,
+		}
+		res = append(models.TemperatureSlice{sT}, res...)
+	}
+
 	if graph == 1 {
 		var resGraph [][2]uint64
 		for _, r := range res {
@@ -294,6 +308,17 @@ func (c *ServiceSensors) GetHumidity() {
 		statsTime,
 	)
 
+	if statsSource {
+		cachVal, _ := models.GoBox.SensorCache.GetFloat64(fmt.Sprintf("%s/hum", strings.ToLower(sensor)))
+		sT := models.Humidity{
+			ID:      0,
+			Sensor:  sensor,
+			Created: time.Now(),
+			Value:   cachVal,
+		}
+		res = append(models.HumiditySlice{sT}, res...)
+	}
+
 	if graph == 1 {
 		var resGraph [][2]uint64
 		for _, r := range res {
@@ -373,64 +398,6 @@ func (c *ServiceSys) GetTime() {
 
 func (c *ServiceSys) Post() {
 	c.Abort("500") // ! BLOCKED
-}
-
-type ServiceExport struct {
-	beego.Controller
-}
-
-func (c *ServiceExport) Get() {
-	c.Abort("500") // ! BLOCKED
-}
-
-func (c *ServiceExport) Post() {
-	// !TODO
-	c.Abort("500") // ! BLOCKED
-
-	sensorType := c.GetString("type", "")
-	sensors := c.GetStrings("sensors", []string{})
-	fromRaw := c.GetString("from")
-	toRaw := c.GetString("from")
-	deleteExported, _ := c.GetBool("delete_exported", false)
-	statsTimeRaw, _ := c.GetInt64("stats_time", 0)
-	statsTime := time.Duration(statsTimeRaw)
-	fromDate, fdErr := arrow.CParse("%Y-%m-%d %H:%M:%S", fromRaw)
-	toDate, tdErr := arrow.CParse("%Y-%m-%d %H:%M:%S", toRaw)
-
-	if (sensorType != "temperature" && sensorType != "humidity") || len(sensors) < 1 || fdErr != nil || tdErr != nil {
-		c.Abort("500")
-	}
-
-	ctx, cancle := context.WithDeadline(
-		context.Background(),
-		time.Now().Add(1*time.Minute),
-	)
-	defer cancle()
-
-	var resp string
-	var rErr error
-
-	if sensorType == "temperature" {
-		resp, rErr = models.ExportTemperature(ctx, sensors, "./export", fromDate.Time, toDate.Time, deleteExported, statsTime)
-	} else {
-		resp, rErr = models.ExportHumidity(ctx, sensors, "./export", fromDate.Time, toDate.Time, deleteExported, statsTime)
-	}
-
-	if rErr != nil {
-		// !TODO
-		c.Abort("500")
-	}
-
-	res := JSONResp{
-		Data: map[string]interface{}{
-			"file": resp,
-		},
-		Meta: map[string]interface{}{
-			"status": 200,
-		},
-	}
-	c.Data["json"] = res
-	c.ServeJSON()
 }
 
 func contains(a []string, b string) bool {
