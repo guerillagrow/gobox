@@ -21,6 +21,14 @@ import (
 
 var VERSION string
 
+func PprofServe() {
+
+	go func() {
+		// !DEBUG
+		log.Println(http.ListenAndServe(":6060", nil))
+	}()
+}
+
 func main() {
 
 	utils.LocalVersion = VERSION
@@ -40,10 +48,7 @@ func main() {
 	}
 
 	if *models.ARG_Debug == true {
-		go func() {
-			// !DEBUG
-			log.Println(http.ListenAndServe(":6060", nil))
-		}()
+		PprofServe()
 	}
 
 	models.Init() // Initialize models database etc.
@@ -58,6 +63,13 @@ func main() {
 	}()
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	cfgDebugFlag, cderr := models.BoxConfig.GetBool("debug_mode")
+
+	if cderr == nil && cfgDebugFlag == true && !*models.ARG_Debug {
+		models.ARG_Debug = &cfgDebugFlag
+		PprofServe()
+	}
 
 	models.GoBox.Start()
 

@@ -72,6 +72,7 @@ type ServiceExport struct {
 }
 
 func (c *ServiceExport) Get() {
+	c.Abort("403") // !TODO
 	var res JSONResp
 
 	files, err := ioutil.ReadDir("./export")
@@ -115,6 +116,7 @@ func (c *ServiceExport) Get() {
 }
 
 func (c *ServiceExport) Post() {
+	c.Abort("403") // !TODO
 
 	var res JSONResp
 

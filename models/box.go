@@ -274,7 +274,13 @@ func (box *Box) relayWork(relayName string, relayDevice *gpio.GroveRelayDriver) 
 				}
 			}
 		}
-		time.Sleep(10 * time.Second)
+
+		readInterval, _ := BoxConfig.GetInt64(fmt.Sprintf("devices/relay_%s/read_interval", strings.ToLower(relayName)))
+		if readInterval < 1 {
+			time.Sleep(10 * time.Second)
+		} else {
+			time.Sleep(time.Duration(readInterval) * time.Second)
+		}
 
 	}
 }
@@ -387,8 +393,11 @@ func (box *Box) EvalRelayExpression(expr string) (bool, error) {
 }
 
 func (box *Box) RobotWork() {
+
 	gobot.Every(5*time.Second, func() {
+		box.mux.Lock()
 		BoxConfig.LoadFile(BoxConfig.File)
+		box.mux.Unlock()
 	})
 
 	// !TODO: make it more intelligent
@@ -512,13 +521,15 @@ func (box *Box) LightToggle() error {
 }
 
 func (box *Box) Stop() error {
+	box.mux.Lock()
 	box.Robot.Stop()
 	if box.SensDCmd != nil && box.SensDCmd.Process != nil {
 		box.SensDCmd.Process.Kill()
 	}
 	time.Sleep(1 * time.Second)
-	//DB.Commit()
+	DB.Commit()
 	DB.Close()
+	box.mux.Unlock()
 	return nil
 }
 

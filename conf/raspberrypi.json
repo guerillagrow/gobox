@@ -12,23 +12,25 @@
         },
         "relay_l1": {
             "gpio": "11",
+			"read_interval": 10,
             "settings": {
                 "condition": "",
                 "force": 0,
                 "off": "20:07",
                 "on": "06:00"
             },
-            "status": true
+            "status": false
         },
         "relay_l2": {
             "gpio": "17",
+			"read_interval": 10,
             "settings": {
                 "condition": "",
                 "force": 1,
                 "off": "20:00",
                 "on": "09:01"
             },
-            "status": true
+            "status": false
         },
         "t1": {
             "gpio": "5",
@@ -51,5 +53,6 @@
 	"ui": {
 		"metric_source": "live",
 		"language": "en"
-	}
+	},
+	"debug_mode": false
 }
